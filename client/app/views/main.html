@@ -1,0 +1,66 @@
+<!-- Intro -->
+	<h1 class="title">ME.TO
+	<span class="subtitle">Url-Shortner: Simple, Smart, Lightweight</span>
+	</h1>
+	
+	<div>
+	   <table class="buttonTable">
+	      <tr>
+		     <td>
+			    <button type='button'>WHO WE ARE</button>
+			 </td>
+			 <td>
+			    <button type='button'>WHAT WE DO</button>
+			 </td>
+			 <td>
+			    <button type='button'>CONTACT</button>
+			 </td>
+		  </tr>
+	   </table>
+	</div>
+	
+	
+	<!-- Log in & Sing in -->
+	
+	<!-- AngularJS App-->   
+	<div>
+	<div ng-controller="UrlCtrl">
+		
+		<form action="demo_form.asp" method="get" id="urlForm">
+			Long url here: <input type="text" name="longUrl"><br>
+		</form>
+		
+		<button type="submit" form="urlForm" value="Submit">Let's shorten it!</button> 
+		
+		<div>
+			Search: <input ng-model="query">
+			Sort by:
+			<select ng-model="orderProp">
+				<option value="name">Alphabetic</option>
+				<option value="age">Newest</option>
+			</select>
+			
+			<ul>
+				<li ng-repeat="phone in phones | filter:query | orderBy:orderProp">
+					<p>{{phone.Name}}</p>
+					<p>{{phone.snippet}}</p>
+				</li>
+			</ul>
+			
+			
+		</div>
+		
+	</div>
+	</div>
+	
+	<!-- Footer -->
+    <div class="container">
+    <div ng-view=""></div>
+    </div>
+
+    <div class="footer">
+      <div class="container">
+        <p><span class="glyphicon glyphicon-heart"></span> Designing Data Bases with Advanced Data Models. University of Bari, CS.</p>
+      </div>
+    </div>
+	
