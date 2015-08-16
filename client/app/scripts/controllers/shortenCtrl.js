@@ -36,10 +36,10 @@ urlShortener.controller("authCtrl",
             					}
             				})
                 	.success(function(response){
-
+                		alert("succes");
                 	})
                 	.error(function(response){
-
+                		alert("Se visualizzi questo messaggio significa che non funziona NIENTE DI NIENTE come sempre.");
                 	})
         	}
 

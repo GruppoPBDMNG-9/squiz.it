@@ -4,25 +4,26 @@ import static spark.Spark.*;
 
 import dao.CassandraDAO;
 import org.json.JSONObject;
+import shortening.Shortener;
 
 public class Server {
 
     public static void main(String[] args) {
 
         /*
-        Random shortening operation
+        Random generate operation
          */
         get("/shortening", (request, response) -> {
             JSONObject responseData = new JSONObject();
 
             try {
                 String longUrl = request.queryParams(Args.LONG_URL);
-                String shortUrl = Utility.shortening(longUrl);
+                String shortUrl = new Shortener().generate();
 
                 CassandraDAO dao = new CassandraDAO();
                 dao.saveUrl(shortUrl);
-
                 responseData.put(Args.SHORT_URL, shortUrl);
+
             } catch (Exception e) {
                 System.out.println("exception = [" + e.getMessage() + "]");
             }
@@ -60,7 +61,7 @@ public class Server {
         });
 
         /*
-        Costumized shortening operation ONLY FOR MEMBERS!
+        Costumized generate operation ONLY FOR MEMBERS!
          */
         get("/customShortening", (request, response) -> {
             JSONObject responseData = new JSONObject();
@@ -79,7 +80,7 @@ public class Server {
           More info: https://en.wikipedia.org/wiki/Cross-origin_resource_sharing
 
           WARNING: It seems useless, doesn't work! I can't use POST.
-          */
+
 
         options("/*", (request, response) -> {
 
@@ -95,6 +96,7 @@ public class Server {
 
             return "OK";
         });
+        */
 
     }
 }
