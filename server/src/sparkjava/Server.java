@@ -5,15 +5,17 @@ import static spark.Spark.*;
 import dao.CassandraDAO;
 import org.json.JSONObject;
 import shortening.Shortener;
+import spark.Request;
+import spark.Response;
 
 public class Server {
 
     public static void main(String[] args) {
 
         /*
-        Random generate operation
-         */
-        get("/shortening", (request, response) -> {
+        Shortening operation
+        */
+        get("/shortening",  (request, response) -> {
             JSONObject responseData = new JSONObject();
 
             try {
@@ -22,20 +24,25 @@ public class Server {
 
                 CassandraDAO dao = new CassandraDAO();
                 dao.saveUrl(shortUrl);
+
                 responseData.put(Args.SHORT_URL, shortUrl);
 
             } catch (Exception e) {
                 System.out.println("exception = [" + e.getMessage() + "]");
             }
-
-            System.out.println("responseData = [" + responseData.toString() + "]");
             System.out.println("done");
-            return responseData.toString();
+
+            System.out.println("responseData: " + responseData.toString());
+            System.out.println("response: " + response.toString());
+
+            setResponseHeader(request, response);
+            return responseData;
         });
+
 
         /*
         Login
-         */
+
         get("/login", (request, response) -> {
             JSONObject responseData = new JSONObject();
 
@@ -59,44 +66,34 @@ public class Server {
 
             return "";
         });
-
-        /*
-        Costumized generate operation ONLY FOR MEMBERS!
-         */
-        get("/customShortening", (request, response) -> {
-            JSONObject responseData = new JSONObject();
-            return "";
-        });
-
-        /*
-        Singup
-         */
-        get("/singup", (request, response) -> {
-           return "";
-        });
-
-        /*
-          We need this just to allow Cross-domain resource sharing.
-          More info: https://en.wikipedia.org/wiki/Cross-origin_resource_sharing
-
-          WARNING: It seems useless, doesn't work! I can't use POST.
-
-
-        options("/*", (request, response) -> {
-
-            String accessControlRequestHeaders = request.headers("Access-Control-Request-Headers");
-            if (accessControlRequestHeaders != null) {
-                response.header("Access-Control-Allow-Headers", accessControlRequestHeaders);
-            }
-
-            String accessControlRequestMethod = request.headers("Access-Control-Request-Method");
-            if (accessControlRequestMethod != null) {
-                response.header("Access-Control-Allow-Methods", accessControlRequestMethod);
-            }
-
-            return "OK";
-        });
         */
 
+        options("/*", (request, response) -> {
+            setOptionRequestResponseHeader(request, response);
+            return null;
+        });
     }
+
+    /*
+          We need these two private method because of Cross-domain resource sharing.
+          More info: https://en.wikipedia.org/wiki/Cross-origin_resource_sharing
+
+          WARNING: Every method will call setResponseHeader(). options calls setOptionRequestResponseHeader()
+          */
+    private static void setResponseHeader(Request req,Response res){
+        String origin=req.headers("Origin");
+        res.header("access-control-allow-origin", origin);
+        res.header("content-type", "text/plain");
+    }
+
+
+    private static void setOptionRequestResponseHeader(Request req,Response res){
+        String origin=req.headers("Origin");
+        res.header("access-control-allow-origin", origin);
+        res.header("access-control-allow-methods", "GET, OPTIONS");
+        res.header("access-control-allow-headers", "content-type, accept");
+        res.header("access-control-max-age", 10 + "");
+        res.header("content-length", 0 + "");
+    }
+
 }

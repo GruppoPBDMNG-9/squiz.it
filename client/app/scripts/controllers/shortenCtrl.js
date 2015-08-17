@@ -3,22 +3,21 @@ var urlShortener = angular.module('urlShortener', []);
 //Shortening operation handling
 urlShortener.controller('shortenCtrl',
 	function($scope, $http){
-
 		$scope.longUrl = "";
         $scope.errorMsg = "errorMsg";
         $scope.shortUrl = "shortUrl";
 
         $scope.shortening =
-        	function(longUrl){
-           		$http.get("http://localhost:4567/shortening", {params:{longUrl: longUrl}})
-                   	.success(function(response){
-                   		$scope.errorMsg = "success"
-                   	})
-                   	.error(function(response){
-                   		$scope.errorMsg = "error";
-                   	})
-            }
-     }
+        		function(){
+           			$http.get("http://localhost:4567/shortening?longUrl=" + $scope.longUrl)
+                   		.then(function(response) {
+                    		$scope.shortUrl = response.data.shortUrl;
+                    		alert("ok");
+                    	},function(response) {
+                    		alert("shortening error");
+                    	});
+        	}
+    }
 );
 
 //Login and singin operation handling
