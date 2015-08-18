@@ -11,6 +11,7 @@ import spark.Response;
 import utility.FormatStringChecker;
 
 public class Server {
+    static String lastUrl;
 
     public static void main(String[] args) {
 
@@ -20,6 +21,9 @@ public class Server {
 
             String shortUrl = new Shortener().randomGenerate();
             json.put(Args.SHORT_URL, shortUrl);
+
+            //Set lastUrl. We use it in /saveUrl for checking operation
+            lastUrl = shortUrl;
 
             setResponseHeader(request, response);
             return json;
@@ -32,15 +36,25 @@ public class Server {
             String longUrl = request.queryParams(Args.LONG_URL);
             String url = request.queryParams(Args.URL);
 
-            CassandraDAO dao = new CassandraDAO();
-            if(dao.availableUrl(url)) {
-                dao.saveUrl(longUrl, url);
+            //Check if user has customized his url. If not, we can seve it. Otherwise, we have to check the choosen url it's available
+            String[] splittedUrl = url.split("/");
+            if(splittedUrl[splittedUrl.length - 1].equals(lastUrl)){
+                new CassandraDAO().saveUrl(longUrl, url);
                 json.put(Args.RESULT, Args.OKAY);
                 json.put(Args.URL_SAVED, Args.URL_SAVED_MSG);
                 json.put(Args.URL, url);
             } else {
-                json.put(Args.RESULT, Args.ERROR);
-                json.put(Args.URL_SAVED, Args.URL_ALREADY_TAKEN);
+                new Shortener().undo();
+                CassandraDAO dao = new CassandraDAO();
+                if(dao.availableUrl(url)) {
+                    dao.saveUrl(longUrl, url);
+                    json.put(Args.RESULT, Args.OKAY);
+                    json.put(Args.URL_SAVED, Args.URL_SAVED_MSG);
+                    json.put(Args.URL, url);
+                } else {
+                    json.put(Args.RESULT, Args.ERROR);
+                    json.put(Args.URL_SAVED, Args.URL_ALREADY_TAKEN);
+                }
             }
 
             setResponseHeader(request, response);

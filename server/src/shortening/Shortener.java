@@ -1,7 +1,12 @@
 package shortening;
 
 public class Shortener {
-    //private static String DOMAIN = "http://squiz.it/";
+    private static String tmpChar1;
+    private static String tmpChar2;
+    private static String tmpChar3;
+    private static String tmpChar4;
+    private static short tmpNum1;
+    private static short tmpNum2;
 
     private static String char1 = "a";
     private static String char2 = "a";
@@ -21,6 +26,8 @@ public class Shortener {
      * @return shortUrl
      */
     public String randomGenerate(){
+        setUndo();
+
         if(!checkNum())
             switchChar();
         String shortUrl = (char1 + char2 + num1 + num2 + char3 + char4);
@@ -28,14 +35,31 @@ public class Shortener {
         return shortUrl;
     }
 
-    /**
-     * Generate a costumized short link
-     * Note: ONLY FOR MEMBERS!
-     * @param customText
-     * @return short link
+    /*
+    If an user make a shortening operation, we generate a random short url.
+    If he doesn't like auto-generated url, it can customize it by himself, and
+    then we don't use the auto-generated url, but we will use it for the
+    next shortening request.
      */
-    public String customGenerate(String customText){
-        return customText;
+    public void undo(){
+        char1 = tmpChar1;
+        char2 = tmpChar2;
+        char3 = tmpChar3;
+        char4 = tmpChar4;
+        num1 = tmpNum1;
+        num2 = tmpNum2;
+    }
+
+    /*
+    Set params for undo operation
+     */
+    private void setUndo(){
+        tmpChar1 = char1;
+        tmpChar2 = char2;
+        tmpChar3 = char3;
+        tmpChar4 = char4;
+        tmpNum1 = num1;
+        tmpNum2 = num2;
     }
 
     /**
