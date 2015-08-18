@@ -67,10 +67,17 @@ urlShortener.controller('shortenCtrl',
         		function(){
         			$http.get($scope.saveRequest())
         				.then(function(response) {
+        					var result = response.data.result;
         					var msg = response.data.urlSavedMsg;
-        					var url = response.data.url;
-        					prompt(msg, url);
-        					$scope.reset();
+
+        					if(result == "ok"){
+        						var url = response.data.url;
+        						prompt(msg, url);
+        						$scope.reset();
+        					} else if (result == "error") {
+        						alert(msg);
+        					}
+
         				},function(response) {
         					alert("server error for save() method");
         				});

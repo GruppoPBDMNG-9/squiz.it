@@ -32,8 +32,16 @@ public class Server {
             String longUrl = request.queryParams(Args.LONG_URL);
             String url = request.queryParams(Args.URL);
 
-            json.put(Args.URL_SAVED, Args.URL_SAVED_MSG);
-            json.put(Args.URL, url);
+            CassandraDAO dao = new CassandraDAO();
+            if(dao.availableUrl(url)) {
+                dao.saveUrl(longUrl, url);
+                json.put(Args.RESULT, Args.OKAY);
+                json.put(Args.URL_SAVED, Args.URL_SAVED_MSG);
+                json.put(Args.URL, url);
+            } else {
+                json.put(Args.RESULT, Args.ERROR);
+                json.put(Args.URL_SAVED, Args.URL_ALREADY_TAKEN);
+            }
 
             setResponseHeader(request, response);
             return json;
@@ -75,10 +83,10 @@ public class Server {
     }
 
     /*
-          We need these two private method because of Cross-domain resource sharing.
+          We need these two private methods because of Cross-domain resource sharing.
           More info: https://en.wikipedia.org/wiki/Cross-origin_resource_sharing
 
-          WARNING: Every method will call setResponseHeader(). options calls setOptionRequestResponseHeader()
+          WARNING: Every method will call setResponseHeader(). options() calls also setOptionRequestResponseHeader()
           */
     private static void setResponseHeader(Request req,Response res){
         String origin=req.headers("Origin");
