@@ -1,7 +1,7 @@
 package shortening;
 
 public class Shortener {
-    private static String DOMAIN = "http://squiz.it/";
+    //private static String DOMAIN = "http://squiz.it/";
 
     private static String char1 = "a";
     private static String char2 = "a";
@@ -17,16 +17,25 @@ public class Shortener {
     }
 
     /**
-     * Genera uno short link
+     * Generate a random short link
      * @return shortUrl
      */
-    public String generate(){
-        if(!checkNum()){
+    public String randomGenerate(){
+        if(!checkNum())
             switchChar();
-        }
         String shortUrl = (char1 + char2 + num1 + num2 + char3 + char4);
 
-        return DOMAIN + shortUrl;
+        return shortUrl;
+    }
+
+    /**
+     * Generate a costumized short link
+     * Note: ONLY FOR MEMBERS!
+     * @param customText
+     * @return short link
+     */
+    public String customGenerate(String customText){
+        return customText;
     }
 
     /**
@@ -136,7 +145,7 @@ public class Shortener {
         Shortener s = new Shortener();
 
         for(int i = 0; i < 20; i++){
-            String shortUrl = s.generate();
+            String shortUrl = s.randomGenerate();
             System.out.println(shortUrl);
         }
     }

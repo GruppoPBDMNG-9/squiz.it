@@ -63,17 +63,23 @@
             </span>
         </h1>
 
-        <div ng-controller="shortenCtrl">
+        <div ng-controller="shortenCtrl" id="shortenCtrlDiv">
             <form>
                 <input type="text" placeholder="Insert you long url here..." class="form-control" ng-model="longUrl">
-                <span>
-                    <button type="submit" class="btn btn-primary btn-lg" ng-click="shortening()">Let's shorten it! &raquo;</button>
-                </span>
+                <br>
+                <button type="submit" class="btn btn-primary btn-lg" ng-click="letsShortenIt()">Let's shorten it! &raquo;</button>
             </form>
-            {{shortUrl}}
+
+            <div id="customizeForm">
+                <p>
+                    {{msg}} {{domain}} {{shortUrl}} <br>
+                    {{customizeMsg}}
+                </p>
+            </div>
         </div>
     </div>
 </div>
+
 
 <h1 class="team">TEAM</h1>
 <div class="container">

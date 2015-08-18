@@ -3,40 +3,40 @@ package sparkjava;
 import static spark.Spark.*;
 
 import dao.CassandraDAO;
+import exception.CustomizationNotValid;
 import org.json.JSONObject;
 import shortening.Shortener;
 import spark.Request;
 import spark.Response;
+import utility.FormatStringChecker;
 
 public class Server {
 
     public static void main(String[] args) {
 
-        /*
-        Shortening operation
-        */
-        get("/shortening",  (request, response) -> {
-            JSONObject responseData = new JSONObject();
+        //Random short path generator
+        get("/generateShortening", (request, response) -> {
+            JSONObject json = new JSONObject();
 
-            try {
-                String longUrl = request.queryParams(Args.LONG_URL);
-                String shortUrl = new Shortener().generate();
-
-                CassandraDAO dao = new CassandraDAO();
-                dao.saveUrl(shortUrl);
-
-                responseData.put(Args.SHORT_URL, shortUrl);
-
-            } catch (Exception e) {
-                System.out.println("exception = [" + e.getMessage() + "]");
-            }
-            System.out.println("done");
-
-            System.out.println("responseData: " + responseData.toString());
-            System.out.println("response: " + response.toString());
+            String shortUrl = new Shortener().randomGenerate();
+            json.put(Args.SHORT_URL, shortUrl);
 
             setResponseHeader(request, response);
-            return responseData;
+            return json;
+        });
+
+        //Save shortened url
+        get("/saveUrl", (request, response) -> {
+            JSONObject json = new JSONObject();
+
+            String longUrl = request.queryParams(Args.LONG_URL);
+            String url = request.queryParams(Args.URL);
+
+            json.put(Args.URL_SAVED, Args.URL_SAVED_MSG);
+            json.put(Args.URL, url);
+
+            setResponseHeader(request, response);
+            return json;
         });
 
 
