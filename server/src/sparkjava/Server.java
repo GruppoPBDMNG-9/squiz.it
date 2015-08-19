@@ -3,7 +3,6 @@ package sparkjava;
 import static spark.Spark.*;
 
 import dao.CassandraDAO;
-import exception.CustomizationNotValid;
 import org.json.JSONObject;
 import shortening.Shortener;
 import spark.Request;
@@ -36,15 +35,20 @@ public class Server {
             String longUrl = request.queryParams(Args.LONG_URL);
             String url = request.queryParams(Args.URL);
 
-            //Check if user has customized his url. If not, we can seve it. Otherwise, we have to check the choosen url it's available
+            //Check if user has customized his url. If not, we can save it. Otherwise, we have to check the availability of the choosen url.
             String[] splittedUrl = url.split("/");
-            if(splittedUrl[splittedUrl.length - 1].equals(lastUrl)){
+            String choosenUrl = splittedUrl[splittedUrl.length - 1];
+
+            if(choosenUrl.equals(lastUrl)){
                 new CassandraDAO().saveUrl(longUrl, url);
+
                 json.put(Args.RESULT, Args.OKAY);
                 json.put(Args.URL_SAVED, Args.URL_SAVED_MSG);
                 json.put(Args.URL, url);
             } else {
+                //Url auto-generated is available again
                 new Shortener().undo();
+
                 CassandraDAO dao = new CassandraDAO();
                 if(dao.availableUrl(url)) {
                     dao.saveUrl(longUrl, url);
@@ -61,6 +65,32 @@ public class Server {
             return json;
         });
 
+        /*
+        Singup
+         */
+        get("/singup", (request, response) -> {
+            JSONObject json = new JSONObject();
+
+            String username = request.queryParams(Args.USERNAME);
+            String password = request.queryParams(Args.PASSWORD);
+            FormatStringChecker fscUsername = new FormatStringChecker(username);
+            FormatStringChecker fscPassword = new FormatStringChecker(password);
+
+            if(fscUsername.check() && fscPassword.check()){
+                CassandraDAO dao = new CassandraDAO();
+                if(dao.checkUsernameAvailability(username)){
+                    dao.saveNewUser(username, password);
+                    json.put(Args.SINGUP_RESULT_MSG, Args.SINGUP_OK);
+                } else {
+                    json.put(Args.SINGUP_RESULT_MSG, Args.SINGUP_ERROR);
+                }
+            } else {
+                json.put(Args.SINGUP_RESULT_MSG, Args.FORMAT_ERROR);
+            }
+
+            setResponseHeader(request, response);
+            return json;
+        });
 
         /*
         Login

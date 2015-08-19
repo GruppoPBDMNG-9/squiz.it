@@ -100,44 +100,31 @@ urlShortener.controller('shortenCtrl',
     }
 );
 
-//Login and singin operation handling
+//Login and singup operation handling
 urlShortener.controller("authCtrl",
     function($scope, $http){
-        $scope.email;
-        $scope.password;
 
-        $scope.login =
-        	function(email, password){
-            	$http.get(	"http://localhost:4567/login",
-            				{params:{
-            					email: email,
-            					password: password
-            					}
-            				})
-                	.success(function(response){
-                		alert("succes");
-                	})
-                	.error(function(response){
-                		alert("Se visualizzi questo messaggio significa che non funziona NIENTE DI NIENTE come sempre.");
-                	})
-        	}
+        $scope.username = "";
 
-        /*$scope.login =
-                       	function(email, password){
-                       		$http.get(	"http://localhost:4567/login",
-                       					{params:{
-                       						email: email,
-                       						password: password
-                       						}
-                       					}
-                       				).success(function(response){
+        $scope.password = "";
 
-                       				})
-                       				.error(function(response){
+		$scope.singupRequest =
+				function(){
+					return "http://localhost:4567/singup?username=" + $scope.username + "&password=" + $scope.password
+				}
 
-                       				})
-                       															}})
-                       	}*/
+		$scope.singup =
+				function(){
+					$http.get($scope.singupRequest())
+						.then(function(response){
+                        	var result = response.data.singupResult;
+                        	alert(result);
+						});
+				}
+
+
+
+
 
     }
 

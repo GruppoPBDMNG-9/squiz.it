@@ -1,5 +1,7 @@
 package dao;
 
+import java.util.List;
+
 public class CassandraDAO extends DAO {
 
     public boolean availableUrl(String url){
@@ -14,6 +16,20 @@ public class CassandraDAO extends DAO {
 
     public boolean login(String email, String password){
         return true;
+    }
+
+    /*
+    Used in SINGUP phase, and check the username availability
+     */
+    public boolean checkUsernameAvailability(String username){
+        return true;
+    }
+
+    /*
+    Register a new user on out platform. Welcome on board!
+     */
+    public void saveNewUser(String username, String password){
+
     }
 
 }
