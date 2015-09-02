@@ -2,13 +2,14 @@ var urlShortener = angular.module('urlShortener', []);
 
 //Shortening operation handling
 urlShortener.controller('shortenCtrl',
-	function($scope, $http, $compile){
+	function($scope, $http, $compile, $window){
 		//Variables
         $scope.msg = "";
         $scope.customizeMsg = "";
         $scope.domain = "";
 		$scope.longUrl = "";
         $scope.shortUrl = "";
+        $scope.loggedIn = false;
 
 		//Request
         $scope.generateShorteningRequest =
@@ -16,10 +17,20 @@ urlShortener.controller('shortenCtrl',
         			return "http://localhost:4567/generateShortening";
         		}
 
+		/*
+		Formalize request to send to the server
+		*/
         $scope.saveRequest =
         		function(){
-        			return "http://localhost:4567/saveUrl?url=http://squiz.it/" + $scope.shortUrl + "&longUrl=" + $scope.longUrl;
-
+        			var user;
+        			if(!$scope.loggedIn){
+        				user = "---";    //username allow only numbers and letters. so this is a good solution
+        			} else {
+        				user = $scope.username;
+        			}
+        			return "http://localhost:4567/saveUrl?url=http://squiz.it/" + $scope.shortUrl
+        										+ "&longUrl=" + $scope.longUrl
+        										+ "&username=" + user;
         		}
 
 		/*
@@ -73,6 +84,7 @@ urlShortener.controller('shortenCtrl',
         					if(result == "ok"){
         						var url = response.data.url;
         						prompt(msg, url);
+        						alert("username che ha salvato: " + $scope.username);
         						$scope.reset();
         					} else if (result == "error") {
         						alert(msg);
@@ -97,37 +109,59 @@ urlShortener.controller('shortenCtrl',
                     var addedDiv = angular.element( document.querySelector( '#addedDiv' ) );
                     addedDiv.remove();
         		}
-    }
-);
-
-//Login and singup operation handling
-urlShortener.controller("authCtrl",
-    function($scope, $http){
 
         $scope.username = "";
 
-        $scope.password = "";
+                $scope.password = "";
 
-		$scope.singupRequest =
-				function(){
-					return "http://localhost:4567/singup?username=" + $scope.username + "&password=" + $scope.password
-				}
+        		//Singup
+        		$scope.singupRequest =
+        				function(){
+        					return "http://localhost:4567/singup?username=" + $scope.username + "&password=" + $scope.password
+        				}
 
-		$scope.singup =
-				function(){
-					$http.get($scope.singupRequest())
-						.then(function(response){
-                        	var result = response.data.singupResult;
-                        	alert(result);
-						});
-				}
+        		$scope.singup =
+        				function(){
+        					$http.get($scope.singupRequest())
+        						.then(function(response){
+                                	var result = response.data.singupResult;
+                                	alert(result);
+                                	$scope.username = "";
+                                	$scope.password = "";
+        						}, function(response){
+        							alert("error in singup");
+        						});
+        				}
 
+        		//Login
+            	$scope.loginRequest =
+            			function(){
+            				return "http://localhost:4567/login?username=" + $scope.username + "&password=" + $scope.password
+            			}
 
+            	$scope.login =
+            			function() {
+                            $http.get($scope.loginRequest())
+                            	.then(function(response){
+                            		var result = response.data.result;
+                            		if(result == "error"){
+                            			alert(result);
+                            		} else {
+                            			var username = response.data.username;
+                            			sessionStorage.loggedIn = true;
+                            			sessionStorage.username = username;
+                            			$window.location.href = ("/squiz/client/app/account.html");
+                            		}
 
+                            		alert(sessionStorage.loggedIn);
+                            	}, function(response){
+                            		alert("Some errors occurred during login");
+                            	});
+            			}
 
-
+            	//al logout mi basta settare loggedIn a false e username a stringa vuota e reindirizzare alla home
     }
-
 );
+
 	
 

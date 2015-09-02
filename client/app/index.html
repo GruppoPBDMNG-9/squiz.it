@@ -25,28 +25,27 @@
 
 </head>
 
-<body>
+<body ng-controller="shortenCtrl">
 
 <nav class="navbar navbar-inverse navbar-fixed-top">
     <div class="container">
         <div class="navbar-header">
-            <a class="navbar-brand" href="#">squiz.it</a>
+            <a class="navbar-brand">squiz.it</a>
         </div>
-
-        <div ng-controller="authCtrl">
-            <div id="navbar" class="navbar-collapse collapse">
-                <form class="navbar-form navbar-right">
-                    <div class="form-group">
-                        <input type="text" placeholder="Username" class="form-control" ng-model="username">
-                    </div>
-                    <div class="form-group">
-                        <input type="password" placeholder="Password" class="form-control" ng-model="password">
-                    </div>
-                    <button type="submit" class="btn btn-success" ng-click="login(email, password)">Sign in</button>
-                    <button type="submit" class="btn btn-success" ng-click="singup()">Sing up</button>
-                </form>
-            </div><!--/.navbar-collapse -->
-        </div>
+            <div id="auth">
+                <div id="navbar" class="navbar-collapse collapse">
+                    <form class="navbar-form navbar-right">
+                        <div class="form-group">
+                            <input type="text" placeholder="Username" class="form-control" ng-model="username">
+                        </div>
+                        <div class="form-group">
+                            <input type="password" placeholder="Password" class="form-control" ng-model="password">
+                        </div>
+                        <button type="submit" class="btn btn-success" ng-click="login()">Sign in</button>
+                        <button type="submit" class="btn btn-success" ng-click="singup()">Sing up</button>
+                    </form>
+                </div><!--/.navbar-collapse -->
+            </div>
     </div>
 </nav>
 
@@ -63,7 +62,8 @@
             </span>
         </h1>
 
-        <div ng-controller="shortenCtrl" id="shortenCtrlDiv">
+        <div id="shortenCtrlDiv">
+
             <form>
                 <input type="text" placeholder="Insert you long url here..." class="form-control" ng-model="longUrl">
                 <br>

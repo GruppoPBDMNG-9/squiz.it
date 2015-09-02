@@ -9,6 +9,8 @@ import spark.Request;
 import spark.Response;
 import utility.FormatStringChecker;
 
+import java.util.HashMap;
+
 public class Server {
     static String lastUrl;
 
@@ -32,6 +34,8 @@ public class Server {
         get("/saveUrl", (request, response) -> {
             JSONObject json = new JSONObject();
 
+            //modificare il dao a aggiungere l'username
+            String username = request.queryParams(Args.USERNAME);
             String longUrl = request.queryParams(Args.LONG_URL);
             String url = request.queryParams(Args.URL);
 
@@ -40,7 +44,7 @@ public class Server {
             String choosenUrl = splittedUrl[splittedUrl.length - 1];
 
             if(choosenUrl.equals(lastUrl)){
-                new CassandraDAO().saveUrl(longUrl, url);
+                new CassandraDAO().saveUrl(longUrl, url, username);
 
                 json.put(Args.RESULT, Args.OKAY);
                 json.put(Args.URL_SAVED, Args.URL_SAVED_MSG);
@@ -51,7 +55,7 @@ public class Server {
 
                 CassandraDAO dao = new CassandraDAO();
                 if(dao.availableUrl(url)) {
-                    dao.saveUrl(longUrl, url);
+                    dao.saveUrl(longUrl, url, username);
                     json.put(Args.RESULT, Args.OKAY);
                     json.put(Args.URL_SAVED, Args.URL_SAVED_MSG);
                     json.put(Args.URL, url);
@@ -93,33 +97,45 @@ public class Server {
         });
 
         /*
-        Login
-
+        LOGIN
+         */
         get("/login", (request, response) -> {
-            JSONObject responseData = new JSONObject();
+            JSONObject json = new JSONObject();
 
             try {
-                String email = request.queryParams(Args.EMAIL);
-                String password = request.queryParams(Args.PASSWORD);
-                System.out.println("email = [" + email + "]");
-                System.out.println("password = [" + password + "]");
+                String result = "";
+                String username = request.queryParams(Args.USERNAME);
+                String password = request.queryParams((Args.PASSWORD));
 
                 CassandraDAO dao = new CassandraDAO();
-                if(dao.login(email, password)){
-                    //Apri sessione
-                } else {
-                    //Credenziali errate
-                }
+                if(dao.login(username, password)){
+                    result = Args.OKAY;
+                    json.put(Args.RESULT, result);
 
-            }  catch (Exception e){
-                System.out.println("exception = [" + e.getMessage() + "]");
+                    HashMap<String, Object> stat = dao.loadStatistics(username);
+                    String totalShorteners = (stat.get(Args.STAT_TOTAL_SHORTENERS)).toString();
+                    String totalClick = (stat.get(Args.STAT_TOTAL_CLICK)).toString();
+
+                    //add all to a json
+                    json.put(Args.USERNAME, username);
+                    json.put(Args.STAT_TOTAL_SHORTENERS, totalShorteners);
+                    json.put(Args.STAT_TOTAL_CLICK, totalClick);
+
+                    //quando funzionano queste statistiche allora aggiungere le altre e cercare di innestare i json e crearne uno per shortening
+
+                } else {
+                    result = Args.LOGIN_ERROR;
+                    json.put(Args.RESULT, result);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
 
-
-            return "";
+            setResponseHeader(request, response);
+            return json;
         });
-        */
 
+        //Some settings
         options("/*", (request, response) -> {
             setOptionRequestResponseHeader(request, response);
             return null;
