@@ -15,15 +15,18 @@
     <script src="../bower_components/angular/angular.js"></script>
     <script src="scripts/controllers/shortenCtrl.js"></script>
 
+
     <!-- Bootstrap core CSS -->
     <link href="styles/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <!-- Custom styles for this template -->
     <link href="styles/bootstrap/jumbotron.css" rel="stylesheet">
     <!-- Other normal CSS styles -->
     <link href="styles/imageStyle.css" rel="stylesheet">
+
+
 </head>
 
-<body>
+<body ng-controller="userCtrl">
 
 <nav class="navbar navbar-inverse navbar-fixed-top">
     <div class="container">
@@ -31,15 +34,11 @@
             <a class="navbar-brand">squiz.it</a>
         </div>
 
-        <div ng-controller="authCtrl">
-            <div class="navbar-right">
-                <a class="navbar-brand">{{username}}</a>
-                <form class="navbar-form navbar-right">
-                    <button type="submit" class="btn btn-success">Logout</button>
-                </form>
-            </div>
-
-
+        <div class="navbar-right">
+            <a class="navbar-brand">{{username}}</a>
+            <form class="navbar-form navbar-right">
+                <button type="submit" class="btn btn-success" ng-click="logout()">Logout</button>
+            </form>
         </div>
     </div>
 </nav>
@@ -50,6 +49,8 @@
         <h1>
             Your SQUIZ!
         </h1>
+
+        {{ciao}}
 
         <div ng-controller="shortenCtrl" id="shortenCtrlDiv">
             <form>
@@ -107,7 +108,7 @@
                         </button>
                         <ul class="dropdown-menu" role="menu">
                             <li>asd</li>
-                            <li>dsa</a></li>
+                            <li>dsa</li>
                         </ul>
                     </div>
                 </td>

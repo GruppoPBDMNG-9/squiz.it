@@ -34,7 +34,7 @@ public class Server {
         get("/saveUrl", (request, response) -> {
             JSONObject json = new JSONObject();
 
-            //modificare il dao a aggiungere l'username
+            //Get args
             String username = request.queryParams(Args.USERNAME);
             String longUrl = request.queryParams(Args.LONG_URL);
             String url = request.queryParams(Args.URL);
@@ -107,26 +107,37 @@ public class Server {
                 String username = request.queryParams(Args.USERNAME);
                 String password = request.queryParams((Args.PASSWORD));
 
-                CassandraDAO dao = new CassandraDAO();
-                if(dao.login(username, password)){
-                    result = Args.OKAY;
-                    json.put(Args.RESULT, result);
+                //Check username and password. Only letters and numbers are allowed
+                FormatStringChecker fsc;
+                fsc = new FormatStringChecker(username);
+                boolean validUsername = fsc.check();
+                fsc = new FormatStringChecker(password);
+                boolean validPassword = fsc.check();
 
-                    HashMap<String, Object> stat = dao.loadStatistics(username);
-                    String totalShorteners = (stat.get(Args.STAT_TOTAL_SHORTENERS)).toString();
-                    String totalClick = (stat.get(Args.STAT_TOTAL_CLICK)).toString();
-
-                    //add all to a json
-                    json.put(Args.USERNAME, username);
-                    json.put(Args.STAT_TOTAL_SHORTENERS, totalShorteners);
-                    json.put(Args.STAT_TOTAL_CLICK, totalClick);
-
-                    //quando funzionano queste statistiche allora aggiungere le altre e cercare di innestare i json e crearne uno per shortening
-
+                if(!validUsername || !validPassword){
+                    result = Args.SINGIN_ERROR;
                 } else {
-                    result = Args.LOGIN_ERROR;
-                    json.put(Args.RESULT, result);
+                    CassandraDAO dao = new CassandraDAO();
+                    if(dao.login(username, password)){
+                        result = Args.OKAY;
+
+                        HashMap<String, Object> stat = dao.loadStatistics(username);
+                        String totalShorteners = (stat.get(Args.STAT_TOTAL_SHORTENERS)).toString();
+                        String totalClick = (stat.get(Args.STAT_TOTAL_CLICK)).toString();
+
+                        //add all to a json
+                        json.put(Args.USERNAME, username);
+                        json.put(Args.STAT_TOTAL_SHORTENERS, totalShorteners);
+                        json.put(Args.STAT_TOTAL_CLICK, totalClick);
+
+                        //quando funzionano queste statistiche allora aggiungere le altre e cercare di innestare i json e crearne uno per shortening
+
+                    } else {
+                        result = Args.LOGIN_ERROR;
+                    }
                 }
+
+                json.put(Args.RESULT, result);
             } catch (Exception e) {
                 e.printStackTrace();
             }

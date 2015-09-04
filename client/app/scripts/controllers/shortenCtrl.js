@@ -2,35 +2,30 @@ var urlShortener = angular.module('urlShortener', []);
 
 //Shortening operation handling
 urlShortener.controller('shortenCtrl',
-	function($scope, $http, $compile, $window){
+	function($scope, $http, $compile, $window, $location){
 		//Variables
         $scope.msg = "";
         $scope.customizeMsg = "";
         $scope.domain = "";
 		$scope.longUrl = "";
         $scope.shortUrl = "";
-        $scope.loggedIn = false;
+        $scope.username = "";
+        $scope.password = "";
 
-		//Request
+
+		/*
+		Function called on page load
+		*/
+		$scope.init =
+        		function(){
+        			sessionStorage.username = "";
+        			sessionStorage.loggedIn = false;
+        		}
+
+		//Shortening Request
         $scope.generateShorteningRequest =
         		function(){
         			return "http://localhost:4567/generateShortening";
-        		}
-
-		/*
-		Formalize request to send to the server
-		*/
-        $scope.saveRequest =
-        		function(){
-        			var user;
-        			if(!$scope.loggedIn){
-        				user = "---";    //username allow only numbers and letters. so this is a good solution
-        			} else {
-        				user = $scope.username;
-        			}
-        			return "http://localhost:4567/saveUrl?url=http://squiz.it/" + $scope.shortUrl
-        										+ "&longUrl=" + $scope.longUrl
-        										+ "&username=" + user;
         		}
 
 		/*
@@ -72,6 +67,24 @@ urlShortener.controller('shortenCtrl',
 				}
 
 		/*
+        Formalize request to send to the server
+        */
+        $scope.saveRequest =
+        	function(){
+        		var user;
+        		if(sessionStorage.loggedIn === "false"){
+        			user = "---";    //username allow only numbers and letters. so this is a good solution
+        		} else {
+        			user = sessionStorage.username;
+        		}
+
+        		return "http://localhost:4567/saveUrl?url=http://squiz.it/" + $scope.shortUrl
+                										+ "&longUrl=" + $scope.longUrl
+                										+ "&username=" + user;
+            }
+
+
+		/*
 		Save the url shortened in db if it's available
 		*/
         $scope.save =
@@ -84,7 +97,6 @@ urlShortener.controller('shortenCtrl',
         					if(result == "ok"){
         						var url = response.data.url;
         						prompt(msg, url);
-        						alert("username che ha salvato: " + $scope.username);
         						$scope.reset();
         					} else if (result == "error") {
         						alert(msg);
@@ -109,10 +121,6 @@ urlShortener.controller('shortenCtrl',
                     var addedDiv = angular.element( document.querySelector( '#addedDiv' ) );
                     addedDiv.remove();
         		}
-
-        $scope.username = "";
-
-                $scope.password = "";
 
         		//Singup
         		$scope.singupRequest =
@@ -145,23 +153,61 @@ urlShortener.controller('shortenCtrl',
                             	.then(function(response){
                             		var result = response.data.result;
                             		if(result == "error"){
-                            			alert(result);
+                            			alert("Invalid username or password");
+                            		} else if (result == "singinError") {
+                                    	alert("Disallowerd username or password");
                             		} else {
                             			var username = response.data.username;
+
+										/*
+										Lo salvo sia in sessionStorage per farlo sopravvivere agli aggiornamenti e sia in $scope.loggedIn per controllare che ci sia un utente loggato
+										quando viene effettuato uno shortening. Se non c'è bisogna salvare lo shortening nel database come shortening effettuato da un host.
+										*/
                             			sessionStorage.loggedIn = true;
+                            			$scope.sessionStorage = sessionStorage.loggedIn;
+
+										/*
+										Salvo l'username nello session storage per sopravvivere ai refresh
+										*/
                             			sessionStorage.username = username;
+
+                            			/*
+                            			Mi trasferisco sulla pagina in cui si è autenticati. Tutte le variabili dovrebbero essere visibili
+                            			*/
                             			$window.location.href = ("/squiz/client/app/account.html");
                             		}
-
-                            		alert(sessionStorage.loggedIn);
                             	}, function(response){
                             		alert("Some errors occurred during login");
                             	});
             			}
-
-            	//al logout mi basta settare loggedIn a false e username a stringa vuota e reindirizzare alla home
     }
 );
 
+//USER CTRL
+urlShortener.controller("userCtrl",
+    function($scope, $http, $window){
+    	/*
+    	Init  Controller
+    	*/
+    	var loggedIn = sessionStorage.loggedIn;
+
+    	if(loggedIn==="true"){
+    		$scope.username = sessionStorage.username;
+    	} else {
+    		alert("session expired");
+    		$window.location.href = ("/squiz/client/app/index.html");
+    	}
+
+		/*
+		LOGOUT
+		*/
+    	$scope.logout =
+    			function(){
+    				sessionStorage.username = "";
+    				sessionStorage.loggedIn = false;
+    				$window.location.href = ("/squiz/client/app/index.html");
+    			}
+    }
+);
 	
 

@@ -17,6 +17,7 @@ public class Args {
     static final String URL_SAVED = "urlSavedMsg";
     static final String URL_SAVED_MSG = "Url saved!";
     static final String URL_ALREADY_TAKEN = "Url already taken. So sorry.";
+    static final String SINGIN_ERROR = "singinError";
     static final String SINGUP_RESULT_MSG = "singupResult";
     static final String SINGUP_OK = "Welcome a board! Thank you for joining us!";
     static final String SINGUP_ERROR = "Email already taken. So sorry.";
