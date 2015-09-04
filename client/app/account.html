@@ -50,8 +50,6 @@
             Your SQUIZ!
         </h1>
 
-        {{ciao}}
-
         <div ng-controller="shortenCtrl" id="shortenCtrlDiv">
             <form>
                 <input type="text" placeholder="Insert you long url here..." class="form-control" ng-model="longUrl">
@@ -74,9 +72,9 @@
 <div class="container">
     <h3 class="sub-header">Stat</h3>
     <ul>
-        <li>Total shorteners: </li>
-        <li>Total click: </li>
-        <li>Most popular country: </li>
+        <li>Total shorteners: {{totalShorteners}}</li>
+        <li>Total click: {{totalClick}}</li>
+        <li>{{records}}</li>
     </ul>
 
     <h3 class="sub-header">History</h3>
@@ -89,50 +87,18 @@
                 <th>Long Url</th>
                 <th>click</th>
                 <th>Popular country</th>
-                <th>Other countries</th>
             </tr>
             </thead>
             <tbody>
             <!--qui entra in funzione angular che con il ng-repeat stampa i risultati del dao -->
-            <tr>
-                <td>19/10/2014</td>
-                <td>http://squiz.it/url</td>
-                <td>http://urllunghissimo.it</td>
-                <td>312</td>
-                <td>Italy 80%</td>
-                <td>
-                    <!-- Se non si riesce a far funzionare questo mettiamo solo la percentuale degli altri in generale e non uno ad uno  -->
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                            See others <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu" role="menu">
-                            <li>asd</li>
-                            <li>dsa</li>
-                        </ul>
-                    </div>
-                </td>
+            <tr ng-repeat="record in records">
+                <td>{{record.data}}</td>
+                <td>{{record.shortUrl}}</td>
+                <td>{{record.longUrl}}</td>
+                <td>{{record.click}}</td>
+                <td>{{record.popularCountry}}</td>
             </tr>
 
-            <tr>
-                <td>19/10/2014</td>
-                <td>http://squiz.it/url</td>
-                <td>http://urllunghissimo.it</td>
-                <td>312</td>
-                <td>Italy 80%</td>
-                <td>
-                    <!-- Se non si riesce a far funzionare questo mettiamo solo la percentuale degli altri in generale e non uno ad uno  -->
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                            See others <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu" role="menu">
-                            <li>asd</li>
-                            <li>dsa</a></li>
-                        </ul>
-                    </div>
-                </td>
-            </tr>
             </tbody>
         </table>
 </div>

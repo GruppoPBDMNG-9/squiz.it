@@ -171,6 +171,11 @@ urlShortener.controller('shortenCtrl',
 										*/
                             			sessionStorage.username = username;
 
+										//Carico le statistiche
+										sessionStorage.stat_totalShorteners = response.data.totalShorteners;
+										sessionStorage.stat_totalClick = response.data.totalClick;
+										sessionStorage.stat_records = response.data.records;
+
                             			/*
                             			Mi trasferisco sulla pagina in cui si è autenticati. Tutte le variabili dovrebbero essere visibili
                             			*/
@@ -190,6 +195,11 @@ urlShortener.controller("userCtrl",
     	Init  Controller
     	*/
     	var loggedIn = sessionStorage.loggedIn;
+
+    	//Model variables
+    	$scope.totalShorteners = sessionStorage.stat_totalShorteners;
+    	$scope.totalClick = sessionStorage.stat_totalClick;
+    	$scope.records = sessionStorage.stat_records;
 
     	if(loggedIn==="true"){
     		$scope.username = sessionStorage.username;

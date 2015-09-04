@@ -14,7 +14,7 @@ public class StatisticRecord {
         return this.args.get(StatisticsIndex.DATA);
     }
 
-    public String getShortLink(){
+    public String getShortUrl(){
         return this.args.get(StatisticsIndex.SHORT_URL);
     }
 

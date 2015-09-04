@@ -3,13 +3,19 @@ package sparkjava;
 import static spark.Spark.*;
 
 import dao.CassandraDAO;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import shortening.Shortener;
 import spark.Request;
 import spark.Response;
 import utility.FormatStringChecker;
+import utility.StatisticRecord;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 
 public class Server {
     static String lastUrl;
@@ -130,7 +136,25 @@ public class Server {
                         json.put(Args.STAT_TOTAL_SHORTENERS, totalShorteners);
                         json.put(Args.STAT_TOTAL_CLICK, totalClick);
 
-                        //quando funzionano queste statistiche allora aggiungere le altre e cercare di innestare i json e crearne uno per shortening
+                        //nest an array containig others json: one json for one shortening
+                        LinkedList<StatisticRecord> list = (LinkedList<StatisticRecord>)stat.get(Args.STAT_RECORDS);
+                        JSONArray records = new JSONArray();
+                        int i = 0;
+                        for(StatisticRecord record : list){
+                            //crea un json...
+                            JSONObject jsonRecord = new JSONObject();
+                            jsonRecord.put(Args.STAT_DATA, record.getData());
+                            jsonRecord.put(Args.STAT_LONG_URL, record.getLongUrl());
+                            jsonRecord.put(Args.STAT_SHORT_URL, record.getShortUrl());
+                            jsonRecord.put(Args.STAT_CLICK, record.getClick());
+                            jsonRecord.put(Args.STAT_POPULAR_COUNTRY, record.getPopularCountry());
+
+                            //...lo aggiungo alla lista
+                            records.put(jsonRecord);
+                        }
+                        //alla fine aggiungo l'intera l'ista al main json
+                        json.put(Args.STAT_RECORDS, records);
+                        System.out.println(json.toString());
 
                     } else {
                         result = Args.LOGIN_ERROR;

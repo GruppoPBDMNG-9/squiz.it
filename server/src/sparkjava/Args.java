@@ -27,6 +27,9 @@ public class Args {
     //Stat args
     static final String STAT_TOTAL_SHORTENERS = "totalShorteners";
     static final String STAT_TOTAL_CLICK = "totalClick";
+    static final String STAT_RECORDS = "records";
+
+    //Stat record args
     static final String STAT_DATA = "data";
     static final String STAT_SHORT_URL = "shortUrl";
     static final String STAT_LONG_URL = "longUrl";

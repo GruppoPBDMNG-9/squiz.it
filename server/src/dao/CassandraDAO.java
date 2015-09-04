@@ -5,7 +5,7 @@ import utility.StatisticRecord;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
+import sparkjava.Args;
 
 public class CassandraDAO extends DAO {
 
@@ -18,12 +18,15 @@ public class CassandraDAO extends DAO {
     }
 
     public void saveUrl(String longUrl, String shortUrl, String username){
-        /*
-        Se l'username è nullo significa che lo shortening è stato effettuato da un utente anonimo, altrimenti va salvato lo shortening
-        associato all'username che lo ha effettuato.
-         */
+        final String UNDEFINED_USER = "---"; //se l'url va messo fra quelli anonimi arriva questo username
+        if(username.equals(UNDEFINED_USER)){
+            //Inserisci l'url fra quelli anonimi
+        } else {
+            //Inserisci l'url associato all'utente
+        }
 
-        //Una stampa di prova, si può cancellare
+
+        //Una stampa di prova per vedere se i dati giungono correttamente fin qui
         System.out.println("longUrl = [" + longUrl + "], shortUrl = [" + shortUrl + "], username = [" + username + "]");
     }
 
@@ -36,6 +39,16 @@ public class CassandraDAO extends DAO {
     }
 
     public HashMap<String, Object> loadStatistics(String username){
+        /*
+        Questo metodo resistuisce la statistiche dell'utente avente l'username passato come argomento.
+        Più nel dettaglio ritorna 3 oggetti:
+        - shorteners totali
+        - click totali, quindi sommando tutti click per ogni shortening salvato
+        - Una lista di record. Ogni oggetto record contiene le informazioni su un singolo shortening effettuato.
+
+        Seguono due shortening di prova per maggior chiarezza e utilizzati per restare il client
+        */
+
         //Due shortening di prova
         ArrayList<String> args1 = new ArrayList<String>();
         args1.add("30/08/2015");
