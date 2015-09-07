@@ -172,9 +172,9 @@ urlShortener.controller('shortenCtrl',
                             			sessionStorage.username = username;
 
 										//Carico le statistiche
-										sessionStorage.stat_totalShorteners = response.data.totalShorteners;
-										sessionStorage.stat_totalClick = response.data.totalClick;
-										sessionStorage.stat_records = response.data.records;
+										//sessionStorage.stat_totalShorteners = response.data.totalShorteners;
+										//sessionStorage.stat_totalClick = response.data.totalClick;
+										//sessionStorage.stat_records = response.data.records;
 
                             			/*
                             			Mi trasferisco sulla pagina in cui si è autenticati. Tutte le variabili dovrebbero essere visibili
@@ -205,9 +205,12 @@ urlShortener.controller("userCtrl",
                     }
 
                     //Stat
-                    $scope.totalShorteners = sessionStorage.stat_totalShorteners;
-                    $scope.totalClick = sessionStorage.stat_totalClick;
-                    $scope.records = sessionStorage.stat_records;
+                    //$scope.totalShorteners = sessionStorage.stat_totalShorteners;
+                    //$scope.totalClick = sessionStorage.stat_totalClick;
+                    //$scope.records = sessionStorage.stat_records;
+
+                    //Load Statistics
+                    $scope.loadShortening();
 				}
 
 		//Logout
@@ -218,7 +221,24 @@ urlShortener.controller("userCtrl",
     				$window.location.href = ("/squiz/client/app/index.html");
     			}
 
+		//Load statistics
+		$scope.loadShortening =
+				function(){
+					$http.get("http://localhost:4567/loadShortening?username=" + $scope.username)
+						.then(function(response){
+							$scope.totalShorteners = response.data.totalShorteners
+                        	$scope.totalClick = response.data.totalClick;
+                        	$scope.records = response.data.records;
+						}, function(response){
+                        	alert("error in loadShortening");
+                        });
+				}
 
+		//lol
+        $scope.sayHello =
+        		function(){
+        			alert("Hello");
+        		}
     }
 );
 	

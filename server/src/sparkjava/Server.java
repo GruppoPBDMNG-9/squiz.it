@@ -126,30 +126,6 @@ public class Server {
                     CassandraDAO dao = new CassandraDAO();
                     if(dao.login(username, password)){
                         result = Args.OKAY;
-
-                        HashMap<String, Object> stat = dao.loadStatistics(username);
-                        String totalShorteners = (stat.get(Args.STAT_TOTAL_SHORTENERS)).toString();
-                        String totalClick = (stat.get(Args.STAT_TOTAL_CLICK)).toString();
-                        LinkedList<StatisticRecord> recordList = (LinkedList<StatisticRecord>)stat.get(Args.STAT_RECORDS);
-
-                        //add all to a json
-                        json.put(Args.USERNAME, username);
-                        json.put(Args.STAT_TOTAL_SHORTENERS, totalShorteners);
-                        json.put(Args.STAT_TOTAL_CLICK, totalClick);
-
-                        JSONArray records = new JSONArray();
-                        for(StatisticRecord record : recordList){
-                            JSONObject jsonRecord = new JSONObject();
-                            jsonRecord.put(Args.STAT_DATA, record.getData());
-                            jsonRecord.put(Args.STAT_LONG_URL, record.getLongUrl());
-                            jsonRecord.put(Args.STAT_SHORT_URL, record.getShortUrl());
-                            jsonRecord.put(Args.STAT_CLICK, record.getClick());
-                            jsonRecord.put(Args.STAT_POPULAR_COUNTRY, record.getPopularCountry());
-
-                            records.put(jsonRecord);
-                        }
-                        json.put(Args.STAT_RECORDS, records);
-
                     } else {
                         result = Args.LOGIN_ERROR;
                     }
@@ -167,12 +143,30 @@ public class Server {
         /*
         Load statistics once authenticated
          */
-        get("/loadStatistics", (request, response) -> {
+        get("/loadShortening", (request, response) -> {
             JSONObject json = new JSONObject();
             String username = request.queryParams(Args.USERNAME);
+            HashMap<String, Object> map = new CassandraDAO().loadStatistics(username);
+            LinkedList<StatisticRecord> recordList = (LinkedList<StatisticRecord>) map.get(Args.STAT_RECORDS);
 
+            JSONObject records = new JSONObject();
+            int i = 0;
+            for(StatisticRecord record : recordList){
+                JSONObject jsonRecord = new JSONObject();
+                jsonRecord.put(Args.STAT_DATA, record.getData());
+                jsonRecord.put(Args.STAT_LONG_URL, record.getLongUrl());
+                jsonRecord.put(Args.STAT_SHORT_URL, record.getShortUrl());
+                jsonRecord.put(Args.STAT_CLICK, record.getClick());
+                jsonRecord.put(Args.STAT_POPULAR_COUNTRY, record.getPopularCountry());
 
-            return null;
+                records.put((""+(i++)) , jsonRecord);
+            }
+            json.put(Args.STAT_TOTAL_SHORTENERS, map.get(Args.STAT_TOTAL_SHORTENERS));
+            json.put(Args.STAT_TOTAL_CLICK, map.get(Args.STAT_TOTAL_CLICK));
+            json.put(Args.STAT_RECORDS, map.get(Args.STAT_RECORDS));
+
+            setResponseHeader(request, response);
+            return json;
         });
 
         //Some settings

@@ -39,14 +39,19 @@ public class CassandraDAO extends DAO {
     }
 
     public HashMap<String, Object> loadStatistics(String username){
-        /*
+        /* PER DONATO E CORRADO
         Questo metodo resistuisce la statistiche dell'utente avente l'username passato come argomento.
         Più nel dettaglio ritorna 3 oggetti:
         - shorteners totali
         - click totali, quindi sommando tutti click per ogni shortening salvato
         - Una lista di record. Ogni oggetto record contiene le informazioni su un singolo shortening effettuato.
 
+        La strategia è quella di creare solo la lista di shortening, e di calcolare in questo metodo shorteners totali e click totali,
+        in modo da non avere informazioni ridondanti nel database. Create solo la lista di oggetti StatisticRecord al posto delle prove
+        che ho fatto io. Total shorteners e click totali li ho già calcolati io.
         Seguono due shortening di prova per maggior chiarezza e utilizzati per restare il client
+
+        Vi voglio bene :)
         */
 
         //Due shortening di prova
@@ -71,10 +76,17 @@ public class CassandraDAO extends DAO {
         list.add(record1);
         list.add(record2);
 
+
         //Map di esempio
         HashMap<String, Object> result  = new HashMap<String, Object>();
-        result.put("totalShorteners", list.size());
-        result.put("totalClick" , "250");
+
+        int totalShortening = list.size();
+        int totalClicks = 0;
+        for(StatisticRecord record : list){
+            totalClicks += Integer.parseInt(record.getClick());
+        }
+        result.put("totalShorteners", totalShortening);
+        result.put("totalClick" , totalClicks);
         result.put("records", list);
 
         return result;
