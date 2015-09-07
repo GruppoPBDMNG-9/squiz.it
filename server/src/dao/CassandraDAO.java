@@ -107,6 +107,25 @@ public class CassandraDAO extends DAO {
     }
 
     /*
+    View short url.
+
+    Si cerca nel db se esiste uno short url associato a quello specificato.
+    Se esiste le cose da fare sono queste:
+    - incrementare le visite +1
+    - geolocalizzare l'ip che ha effettuato la visita
+    - convertire lo shortUrl nel suo longUrl e associare il risultato alla variabile longUrl
+
+    Se non esiste, ritornare direttamente la variabile come stringa vuota SENZA SOLLEVARE ECCEZIONI.
+    Se non esiste lo shortUrl corrispondente lo capisco dal fatto che la stringa ritornata è vuota, quindi lo gestisco direttamente nel server,
+    questo metodo deve ritornare o una stringa piena (se esiste lo shortUrl) o una stringa vuota, e basta. Vi amo.
+     */
+    public String viweShortUrl(String shortUrl){
+        String longUrl = ""; //variabile da ritornare
+        longUrl = "www.google.it"; //fare query al db, se esiste la corrispondenza assegnarla
+        return longUrl; //ritornare la variabile
+    }
+
+    /*
     Get all stats data from an username's shorteners
      */
     public LinkedList<LinkedList<String>> getData(String username){

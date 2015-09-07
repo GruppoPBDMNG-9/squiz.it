@@ -234,11 +234,6 @@ urlShortener.controller("userCtrl",
                         });
 				}
 
-		//lol
-        $scope.sayHello =
-        		function(){
-        			alert("Hello");
-        		}
     }
 );
 	

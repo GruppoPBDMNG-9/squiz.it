@@ -169,6 +169,18 @@ public class Server {
             return json;
         });
 
+        get("/*", (request, response) -> {
+            String result;
+            try{
+                result = Args.OKAY;
+            } catch(RuntimeException e) {
+                result = Args.RESULT;
+            }
+
+            setResponseHeader(request, response);
+            return null;
+        });
+
         //Some settings
         options("/*", (request, response) -> {
             setOptionRequestResponseHeader(request, response);
