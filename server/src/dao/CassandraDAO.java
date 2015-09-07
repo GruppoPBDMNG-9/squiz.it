@@ -121,7 +121,7 @@ public class CassandraDAO extends DAO {
      */
     public String viweShortUrl(String shortUrl){
         String longUrl = ""; //variabile da ritornare
-        longUrl = "www.google.it"; //fare query al db, se esiste la corrispondenza assegnarla
+        longUrl = "http://google.it"; //fare query al db, se esiste la corrispondenza assegnarla. Ho messo google come prova
         return longUrl; //ritornare la variabile
     }
 

@@ -136,6 +136,8 @@ public class Server {
                 e.printStackTrace();
             }
 
+            System.out.println("login = [" + request.pathInfo() + "]");
+
             setResponseHeader(request, response);
             return json;
         });
@@ -170,15 +172,19 @@ public class Server {
         });
 
         get("/*", (request, response) -> {
-            String result;
-            try{
-                result = Args.OKAY;
-            } catch(RuntimeException e) {
-                result = Args.RESULT;
+            CassandraDAO dao = new CassandraDAO();
+
+            String shortUrl = (request.pathInfo()).substring(1);
+            String longUrl = dao.viweShortUrl(shortUrl);
+
+            if(longUrl.isEmpty()){
+                return "Invalid short Url";
+            } else {
+                response.redirect(longUrl);
             }
 
             setResponseHeader(request, response);
-            return null;
+            return "";
         });
 
         //Some settings
