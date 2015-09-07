@@ -1,9 +1,6 @@
 package sparkjava;
 
-import static spark.Spark.*;
-
 import dao.CassandraDAO;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import shortening.Shortener;
 import spark.Request;
@@ -11,11 +8,11 @@ import spark.Response;
 import utility.FormatStringChecker;
 import utility.StatisticRecord;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
+
+import static spark.Spark.get;
+import static spark.Spark.options;
 
 public class Server {
     static String lastUrl;
@@ -175,11 +172,12 @@ public class Server {
             CassandraDAO dao = new CassandraDAO();
 
             String shortUrl = (request.pathInfo()).substring(1);
-            String longUrl = dao.viweShortUrl(shortUrl);
+            String longUrl = dao.findLongUrl(shortUrl);
 
             if(longUrl.isEmpty()){
-                return "Invalid short Url";
+                return Args.INVALID_SHORT_URL;
             } else {
+                dao.addClick(shortUrl);
                 response.redirect(longUrl);
             }
 

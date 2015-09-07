@@ -1,11 +1,11 @@
 package dao;
 
+import utility.IPFinder;
 import utility.StatisticRecord;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
-import sparkjava.Args;
 
 public class CassandraDAO extends DAO {
 
@@ -107,22 +107,38 @@ public class CassandraDAO extends DAO {
     }
 
     /*
-    View short url.
-
-    Si cerca nel db se esiste uno short url associato a quello specificato.
-    Se esiste le cose da fare sono queste:
-    - incrementare le visite +1
-    - geolocalizzare l'ip che ha effettuato la visita
-    - convertire lo shortUrl nel suo longUrl e associare il risultato alla variabile longUrl
+    Si cerca nel db se esiste uno short url associato a quello specificato
 
     Se non esiste, ritornare direttamente la variabile come stringa vuota SENZA SOLLEVARE ECCEZIONI.
     Se non esiste lo shortUrl corrispondente lo capisco dal fatto che la stringa ritornata è vuota, quindi lo gestisco direttamente nel server,
     questo metodo deve ritornare o una stringa piena (se esiste lo shortUrl) o una stringa vuota, e basta. Vi amo.
      */
-    public String viweShortUrl(String shortUrl){
+    public String findLongUrl(String shortUrl){
         String longUrl = ""; //variabile da ritornare
         longUrl = "http://google.it"; //fare query al db, se esiste la corrispondenza assegnarla. Ho messo google come prova
+
         return longUrl; //ritornare la variabile
+    }
+
+    /*
+    Il metodo viene chiamato dal server una volta che da uno shortUrl ci si è ricondotti al longUrl.
+    Ogni click ha associato una liste di chiavi-valori, dove la chiave è una nazione e il valore indica il numero di click provenienti da tale nazione.
+    Esempio:
+
+    Link1
+     {Francia: 5
+      Italia: 5
+      Giappone: 6
+      Cina: 1
+      }
+
+      Bene, questo metodo aggiunge una nazione alla lista associata alla shortUrl (che sarà chiave primaria).
+      Se la nazione è già presente incrementa il valore, se non esiste la aggiunge. Io vi do la nazione, voi la inserite.
+      Con affetto.
+     */
+    public void addClick(String shortUrl){
+        String country = new IPFinder().getCountry();
+        //bla bla bla
     }
 
     /*

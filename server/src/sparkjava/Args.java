@@ -23,6 +23,7 @@ public class Args {
     static final String SINGUP_ERROR = "Email already taken. So sorry.";
     static final String FORMAT_ERROR = "Error in username and/or password choice. Only letters and numbers allowed!";
     static final String LOGIN_ERROR = "Username or password not valid";
+    static final String INVALID_SHORT_URL = "Invalid short url";
 
     //Stat args
     static final String STAT_TOTAL_SHORTENERS = "totalShorteners";
