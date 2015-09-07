@@ -191,32 +191,34 @@ urlShortener.controller('shortenCtrl',
 //USER CTRL
 urlShortener.controller("userCtrl",
     function($scope, $http, $window){
-    	/*
-    	Init  Controller
-    	*/
-    	var loggedIn = sessionStorage.loggedIn;
 
-    	//Model variables
-    	$scope.totalShorteners = sessionStorage.stat_totalShorteners;
-    	$scope.totalClick = sessionStorage.stat_totalClick;
-    	$scope.records = sessionStorage.stat_records;
+		//Account init
+		$scope.accountInit =
+				function(){
+					//check
+					var loggedIn = sessionStorage.loggedIn;
+                    if(loggedIn==="true"){
+                    	$scope.username = sessionStorage.username;
+                    } else {
+                    	alert("session expired");
+                    	$window.location.href = ("/squiz/client/app/index.html");
+                    }
 
-    	if(loggedIn==="true"){
-    		$scope.username = sessionStorage.username;
-    	} else {
-    		alert("session expired");
-    		$window.location.href = ("/squiz/client/app/index.html");
-    	}
+                    //Stat
+                    $scope.totalShorteners = sessionStorage.stat_totalShorteners;
+                    $scope.totalClick = sessionStorage.stat_totalClick;
+                    $scope.records = sessionStorage.stat_records;
+				}
 
-		/*
-		LOGOUT
-		*/
+		//Logout
     	$scope.logout =
     			function(){
     				sessionStorage.username = "";
     				sessionStorage.loggedIn = false;
     				$window.location.href = ("/squiz/client/app/index.html");
     			}
+
+
     }
 );
 	

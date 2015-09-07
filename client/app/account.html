@@ -26,7 +26,7 @@
 
 </head>
 
-<body ng-controller="userCtrl">
+<body ng-controller="userCtrl" data-ng-init="accountInit()">
 
 <nav class="navbar navbar-inverse navbar-fixed-top">
     <div class="container">
@@ -85,7 +85,7 @@
                 <th>Data</th>
                 <th>Short Url</th>
                 <th>Long Url</th>
-                <th>click</th>
+                <th>Click</th>
                 <th>Popular country</th>
             </tr>
             </thead>
@@ -101,6 +101,7 @@
 
             </tbody>
         </table>
+        </div>
 </div>
 
 

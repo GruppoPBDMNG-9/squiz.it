@@ -130,18 +130,15 @@ public class Server {
                         HashMap<String, Object> stat = dao.loadStatistics(username);
                         String totalShorteners = (stat.get(Args.STAT_TOTAL_SHORTENERS)).toString();
                         String totalClick = (stat.get(Args.STAT_TOTAL_CLICK)).toString();
+                        LinkedList<StatisticRecord> recordList = (LinkedList<StatisticRecord>)stat.get(Args.STAT_RECORDS);
 
                         //add all to a json
                         json.put(Args.USERNAME, username);
                         json.put(Args.STAT_TOTAL_SHORTENERS, totalShorteners);
                         json.put(Args.STAT_TOTAL_CLICK, totalClick);
 
-                        //nest an array containig others json: one json for one shortening
-                        LinkedList<StatisticRecord> list = (LinkedList<StatisticRecord>)stat.get(Args.STAT_RECORDS);
                         JSONArray records = new JSONArray();
-                        int i = 0;
-                        for(StatisticRecord record : list){
-                            //crea un json...
+                        for(StatisticRecord record : recordList){
                             JSONObject jsonRecord = new JSONObject();
                             jsonRecord.put(Args.STAT_DATA, record.getData());
                             jsonRecord.put(Args.STAT_LONG_URL, record.getLongUrl());
@@ -149,12 +146,9 @@ public class Server {
                             jsonRecord.put(Args.STAT_CLICK, record.getClick());
                             jsonRecord.put(Args.STAT_POPULAR_COUNTRY, record.getPopularCountry());
 
-                            //...lo aggiungo alla lista
                             records.put(jsonRecord);
                         }
-                        //alla fine aggiungo l'intera l'ista al main json
                         json.put(Args.STAT_RECORDS, records);
-                        System.out.println(json.toString());
 
                     } else {
                         result = Args.LOGIN_ERROR;
@@ -168,6 +162,17 @@ public class Server {
 
             setResponseHeader(request, response);
             return json;
+        });
+
+        /*
+        Load statistics once authenticated
+         */
+        get("/loadStatistics", (request, response) -> {
+            JSONObject json = new JSONObject();
+            String username = request.queryParams(Args.USERNAME);
+
+
+            return null;
         });
 
         //Some settings

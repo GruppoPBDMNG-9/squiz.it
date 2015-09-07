@@ -59,12 +59,12 @@ public class CassandraDAO extends DAO {
         StatisticRecord record1 = new StatisticRecord(args1);
 
         ArrayList<String> args2 = new ArrayList<String>();
-        args2.add("30/08/2015");
+        args2.add("01/01/2000");
         args2.add("short2");
         args2.add("long2");
         args2.add("136");
         args2.add("England");
-        StatisticRecord record2 = new StatisticRecord(args1);
+        StatisticRecord record2 = new StatisticRecord(args2);
 
         //Lista di statistiche
         LinkedList<StatisticRecord> list = new LinkedList<StatisticRecord>();
@@ -73,7 +73,7 @@ public class CassandraDAO extends DAO {
 
         //Map di esempio
         HashMap<String, Object> result  = new HashMap<String, Object>();
-        result.put("totalShorteners", "10");
+        result.put("totalShorteners", list.size());
         result.put("totalClick" , "250");
         result.put("records", list);
 
