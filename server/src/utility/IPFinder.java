@@ -28,9 +28,9 @@ public class IPFinder {
             ipAddress = InetAddress.getByName(getIpAddress());
             response = reader.city(ipAddress);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("IOException in IPFinder");
         } catch (GeoIp2Exception e) {
-            e.printStackTrace();
+            System.out.println("GeoIp2Exception in IPFinder");
         }
 
 
@@ -78,7 +78,7 @@ public class IPFinder {
                     );
                     return in.readLine();
                 } catch (Exception e2) {
-                    e2.printStackTrace();
+                    System.out.println("Exception in IPFinder.getIpAddress");
                 }
             }
         }

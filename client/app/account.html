@@ -70,13 +70,13 @@
 
 <!--STATISTICHE-->
 <div class="container">
-    <h3 class="sub-header">Stat</h3>
+    <h3 class="sub-header">GLOBAL STAT</h3>
     <ul>
         <li>Total shorteners: {{totalShorteners}}</li>
         <li>Total click: {{totalClick}}</li>
     </ul>
 
-    <h3 class="sub-header">History</h3>
+    <h3 class="sub-header">HISTORY</h3>
     <div class="table-responsive">
         <table class="table table-striped">
             <thead>
@@ -85,17 +85,32 @@
                 <th>Short Url</th>
                 <th>Long Url</th>
                 <th>Click</th>
-                <th>Popular country</th>
             </tr>
             </thead>
             <tbody>
-            <!--qui entra in funzione angular che con il ng-repeat stampa i risultati del dao -->
+
+            <tr>
+                <td>ciao</td>
+                <td>feccia</td>
+                <td>del</td>
+                <td>pianeta</td>
+                <td>
+                    <ul>
+                        <li>asd</li>
+                        <li>asd</li>
+                        <li>asd</li>
+                    </ul>
+                </td>
+            </tr>
+
             <tr ng-repeat="record in records">
                 <td>{{record.data}}</td>
                 <td>{{record.shortUrl}}</td>
                 <td>{{record.longUrl}}</td>
                 <td>{{record.click}}</td>
-                <td>{{record.popularCountry}}</td>
+                <td>
+                    <button type="submit" class="btn btn-success" ng-click="showStat(record.shortUrl)">show stat</button>
+                </td>
             </tr>
 
             </tbody>

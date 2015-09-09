@@ -1,5 +1,9 @@
 package dao;
 
+import GeoRecord.CityRecord;
+import GeoRecord.ContinentRecord;
+import GeoRecord.CountryRecord;
+import utility.CalendarUtility;
 import utility.IPFinder;
 import utility.StatisticRecord;
 
@@ -17,8 +21,18 @@ public class CassandraDAO extends DAO {
 
     }
 
+    /*
+    Salva un nuovo url shortening. Se è associato ad un username lo associa ad esso, altrmenti finisce fra gli anonmi.
+    Le cose da salvare sono quindi:
+    - short url
+    - long url
+    - data in cui è stato effettuato lo shortening
+    - username (eventualmente null)
+     */
     public void saveUrl(String longUrl, String shortUrl, String username){
         final String UNDEFINED_USER = "---"; //se l'url va messo fra quelli anonimi arriva questo username
+        final String data = new CalendarUtility().getCurrentData();
+
         if(username.equals(UNDEFINED_USER)){
             //Inserisci l'url fra quelli anonimi
         } else {
@@ -30,15 +44,15 @@ public class CassandraDAO extends DAO {
         System.out.println("longUrl = [" + longUrl + "], shortUrl = [" + shortUrl + "], username = [" + username + "]");
     }
 
+    /*
+      Ritorna TRUE se l'username esiste && se la password coincide con l'username.
+      Ritorna FALSE altrmenti
+       */
     public boolean login(String username, String password){
-        /*
-        Ritorna TRUE se l'username esiste && se la password coincide con l'username.
-        Ritorna FALSE altrmenti
-         */
         return true;
     }
 
-    public HashMap<String, Object> loadStatistics(String username){
+    public HashMap<String, Object> loadUserStat(String username){
         /* PER DONATO E CORRADO
         Questo metodo resistuisce la statistiche dell'utente avente l'username passato come argomento.
         Più nel dettaglio ritorna 3 oggetti:
@@ -60,7 +74,6 @@ public class CassandraDAO extends DAO {
         args1.add("short1");
         args1.add("long1");
         args1.add("250");
-        args1.add("Germany");
         StatisticRecord record1 = new StatisticRecord(args1);
 
         ArrayList<String> args2 = new ArrayList<String>();
@@ -68,7 +81,6 @@ public class CassandraDAO extends DAO {
         args2.add("short2");
         args2.add("long2");
         args2.add("136");
-        args2.add("England");
         StatisticRecord record2 = new StatisticRecord(args2);
 
         //Lista di statistiche
@@ -85,6 +97,7 @@ public class CassandraDAO extends DAO {
         for(StatisticRecord record : list){
             totalClicks += Integer.parseInt(record.getClick());
         }
+
         result.put("totalShorteners", totalShortening);
         result.put("totalClick" , totalClicks);
         result.put("records", list);
@@ -116,7 +129,6 @@ public class CassandraDAO extends DAO {
     public String findLongUrl(String shortUrl){
         String longUrl = ""; //variabile da ritornare
         longUrl = "http://google.it"; //fare query al db, se esiste la corrispondenza assegnarla. Ho messo google come prova
-
         return longUrl; //ritornare la variabile
     }
 
@@ -139,6 +151,50 @@ public class CassandraDAO extends DAO {
     public void addClick(String shortUrl){
         String country = new IPFinder().getCountry();
         //bla bla bla
+    }
+
+    public LinkedList<Object> getUrlStat(String shortUrl){
+        //Returning results-------/
+        LinkedList<Object> continents = new LinkedList<Object>();
+        //------------------------/
+
+        //START EUROPA
+        LinkedList<Object> europenCountryList = new LinkedList<Object>();
+
+        //città italiane
+        LinkedList<Object> italianCityList = new LinkedList<Object>();
+        italianCityList.add(new CityRecord("Rome", 3));
+        italianCityList.add(new CityRecord("Milan", 10));
+
+        //città francesci
+        LinkedList<Object> frenchCityList = new LinkedList<Object>();
+        frenchCityList.add(new CityRecord("Paris", 7));
+
+        //aggiungo le nazioni, che ormai incapsulano le città, in un continente
+        europenCountryList.add(new CountryRecord("Italy", 13, italianCityList));
+        europenCountryList.add(new CountryRecord("France", 7, frenchCityList));
+
+        //aggiunto il continente alla lista suprema :)
+        continents.add(new ContinentRecord("Europe", 20, europenCountryList));
+        //END EUROPA
+
+        //-----------------------------
+
+        //START ASIA
+        LinkedList<Object> asianCountryList = new LinkedList<Object>();
+
+        //città giapponesi
+        LinkedList<Object> japaneseCityList = new LinkedList<Object>();
+        japaneseCityList.add(new CityRecord("Tokyo", 5));
+        japaneseCityList.add(new CityRecord("Kyoto", 1));
+        japaneseCityList.add(new CityRecord("Osaka", 2));
+
+        asianCountryList.add(new ContinentRecord("Japan", 8, japaneseCityList));
+
+        continents.add(new ContinentRecord("Asia", 8, asianCountryList));
+        //END ASIA
+
+        return continents;
     }
 
     /*

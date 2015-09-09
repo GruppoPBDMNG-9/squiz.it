@@ -171,11 +171,6 @@ urlShortener.controller('shortenCtrl',
 										*/
                             			sessionStorage.username = username;
 
-										//Carico le statistiche
-										//sessionStorage.stat_totalShorteners = response.data.totalShorteners;
-										//sessionStorage.stat_totalClick = response.data.totalClick;
-										//sessionStorage.stat_records = response.data.records;
-
                             			/*
                             			Mi trasferisco sulla pagina in cui si è autenticati. Tutte le variabili dovrebbero essere visibili
                             			*/
@@ -234,6 +229,11 @@ urlShortener.controller("userCtrl",
                         });
 				}
 
+		//Show more statistics
+		$scope.showStat =
+				function(shortUrl){
+					alert("showStat:" + shortUrl);
+				}
     }
 );
 	

@@ -123,6 +123,7 @@ public class Server {
                     CassandraDAO dao = new CassandraDAO();
                     if(dao.login(username, password)){
                         result = Args.OKAY;
+                        json.put(Args.USERNAME, username);
                     } else {
                         result = Args.LOGIN_ERROR;
                     }
@@ -132,8 +133,6 @@ public class Server {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
-            System.out.println("login = [" + request.pathInfo() + "]");
 
             setResponseHeader(request, response);
             return json;
@@ -145,7 +144,7 @@ public class Server {
         get("/loadShortening", (request, response) -> {
             JSONObject json = new JSONObject();
             String username = request.queryParams(Args.USERNAME);
-            HashMap<String, Object> map = new CassandraDAO().loadStatistics(username);
+            HashMap<String, Object> map = new CassandraDAO().loadUserStat(username);
             LinkedList<StatisticRecord> recordList = (LinkedList<StatisticRecord>) map.get(Args.STAT_RECORDS);
 
             JSONObject records = new JSONObject();
@@ -156,7 +155,6 @@ public class Server {
                 jsonRecord.put(Args.STAT_LONG_URL, record.getLongUrl());
                 jsonRecord.put(Args.STAT_SHORT_URL, record.getShortUrl());
                 jsonRecord.put(Args.STAT_CLICK, record.getClick());
-                jsonRecord.put(Args.STAT_POPULAR_COUNTRY, record.getPopularCountry());
 
                 records.put((""+(i++)) , jsonRecord);
             }
@@ -170,15 +168,19 @@ public class Server {
 
         get("/*", (request, response) -> {
             CassandraDAO dao = new CassandraDAO();
-
             String shortUrl = (request.pathInfo()).substring(1);
             String longUrl = dao.findLongUrl(shortUrl);
 
             if(longUrl.isEmpty()){
                 return Args.INVALID_SHORT_URL;
             } else {
-                dao.addClick(shortUrl);
                 response.redirect(longUrl);
+                try{
+                    dao.addClick(shortUrl);
+                } catch (RuntimeException e) {
+                    System.out.println("error = disallowed click update");
+                }
+
             }
 
             setResponseHeader(request, response);
