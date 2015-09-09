@@ -1,6 +1,6 @@
 package sparkjava;
 
-import dao.CassandraDAO;
+import dao.RedisDAO;
 import org.json.JSONObject;
 import shortening.Shortener;
 import spark.Request;
@@ -47,7 +47,7 @@ public class Server {
             String choosenUrl = splittedUrl[splittedUrl.length - 1];
 
             if(choosenUrl.equals(lastUrl)){
-                new CassandraDAO().saveUrl(longUrl, url, username);
+                new RedisDAO().saveUrl(longUrl, url, username);
 
                 json.put(Args.RESULT, Args.OKAY);
                 json.put(Args.URL_SAVED, Args.URL_SAVED_MSG);
@@ -56,7 +56,7 @@ public class Server {
                 //Url auto-generated is available again
                 new Shortener().undo();
 
-                CassandraDAO dao = new CassandraDAO();
+                RedisDAO dao = new RedisDAO();
                 if(dao.availableUrl(url)) {
                     dao.saveUrl(longUrl, url, username);
                     json.put(Args.RESULT, Args.OKAY);
@@ -84,7 +84,7 @@ public class Server {
             FormatStringChecker fscPassword = new FormatStringChecker(password);
 
             if(fscUsername.check() && fscPassword.check()){
-                CassandraDAO dao = new CassandraDAO();
+                RedisDAO dao = new RedisDAO();
                 if(dao.checkUsernameAvailability(username)){
                     dao.saveNewUser(username, password);
                     json.put(Args.SINGUP_RESULT_MSG, Args.SINGUP_OK);
@@ -120,7 +120,7 @@ public class Server {
                 if(!validUsername || !validPassword){
                     result = Args.SINGIN_ERROR;
                 } else {
-                    CassandraDAO dao = new CassandraDAO();
+                    RedisDAO dao = new RedisDAO();
                     if(dao.login(username, password)){
                         result = Args.OKAY;
                         json.put(Args.USERNAME, username);
@@ -144,7 +144,7 @@ public class Server {
         get("/loadShortening", (request, response) -> {
             JSONObject json = new JSONObject();
             String username = request.queryParams(Args.USERNAME);
-            HashMap<String, Object> map = new CassandraDAO().loadUserStat(username);
+            HashMap<String, Object> map = new RedisDAO().loadUserStat(username);
             LinkedList<StatisticRecord> recordList = (LinkedList<StatisticRecord>) map.get(Args.STAT_RECORDS);
 
             JSONObject records = new JSONObject();
@@ -167,7 +167,7 @@ public class Server {
         });
 
         get("/*", (request, response) -> {
-            CassandraDAO dao = new CassandraDAO();
+            RedisDAO dao = new RedisDAO();
             String shortUrl = (request.pathInfo()).substring(1);
             String longUrl = dao.findLongUrl(shortUrl);
 

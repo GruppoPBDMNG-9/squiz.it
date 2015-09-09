@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 
-public class CassandraDAO extends DAO {
+public class RedisDAO extends DAO {
 
     public boolean availableUrl(String url){
         /*
@@ -153,7 +153,21 @@ public class CassandraDAO extends DAO {
         //bla bla bla
     }
 
+    /*
+    Questo metodo restituisce una lista di luoghi geografici da cui è stato effettuato un click. Un elemento della lista è rappresentato da
+    tre strutture dati derivate dallo stesso morfismo, con lo stesso comportamento che rappresentano però 3 entità differenti.
+    I luoghi da cui viene effettuato un click vengono classificati in continenti, nazioni e città.
+
+    L'elemento di ritorno è una lista.
+    Ogni elemento della lista è una tripla (nomeContinente - numeroClick - Nazioni).
+    Nazioni è una lista di nazioni. Ogni nazione è una tripla (nomeNazione - numeroClick - Città)
+    Città a sua volta è una lista di città. Ogni città è una coppia (nomeCittà - numeroClick)
+
+    In questo modo abbiamo un'unica struttura dati in cui abbiamo tutto innestato, e con una sola query ci portiamo tutto su.
+     */
     public LinkedList<Object> getUrlStat(String shortUrl){
+        //Reperire le statistiche associate allo shortUrl, che sarà chave primaria. Qui non lo faccio perchè è solo un test.
+
         //Returning results-------/
         LinkedList<Object> continents = new LinkedList<Object>();
         //------------------------/
@@ -189,7 +203,7 @@ public class CassandraDAO extends DAO {
         japaneseCityList.add(new CityRecord("Kyoto", 1));
         japaneseCityList.add(new CityRecord("Osaka", 2));
 
-        asianCountryList.add(new ContinentRecord("Japan", 8, japaneseCityList));
+        asianCountryList.add(new CountryRecord("Japan", 8, japaneseCityList));
 
         continents.add(new ContinentRecord("Asia", 8, asianCountryList));
         //END ASIA
