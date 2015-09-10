@@ -76,6 +76,10 @@
         <li>Total click: {{totalClick}}</li>
     </ul>
 
+    <ul ng-repeat="continent in continents">
+        <li>{{continent}}</li>
+    </ul>
+
     <h3 class="sub-header">HISTORY</h3>
     <div class="table-responsive">
         <table class="table table-striped">
@@ -88,20 +92,6 @@
             </tr>
             </thead>
             <tbody>
-
-            <tr>
-                <td>ciao</td>
-                <td>feccia</td>
-                <td>del</td>
-                <td>pianeta</td>
-                <td>
-                    <ul>
-                        <li>asd</li>
-                        <li>asd</li>
-                        <li>asd</li>
-                    </ul>
-                </td>
-            </tr>
 
             <tr ng-repeat="record in records">
                 <td>{{record.data}}</td>

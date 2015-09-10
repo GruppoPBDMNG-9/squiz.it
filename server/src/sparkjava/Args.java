@@ -38,13 +38,8 @@ public class Args {
 
     //Geoloc
     static final String GEOLOC_STAT = "geolocStat";
-    static final String CONTINENT_NAME = "continentName";
-    static final String CONTINENT_CLICK = "continentClick";
+    static final String NAME = "name";
+    static final String CLICK = "click";
     static final String COUNTRIES_LIST = "countryList";
-    static final String COUNTRY_NAME = "countryName";
-    static final String COUNTRY_CLICK = "countryClick";
     static final String CITIES_LIST = "citiesList";
-    static final String CITY_NAME = "continentName";
-    static final String CITY_CLICK = "continentClick";
-
 }

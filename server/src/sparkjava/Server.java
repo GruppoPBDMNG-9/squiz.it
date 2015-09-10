@@ -174,23 +174,15 @@ public class Server {
         Getter delle statistiche su un singolo shortening, con numero di clicks geolocalizzati per continente, nazioni e città
          */
         get("/showUrlStat", (request, response) -> {
-            System.out.println("entra");
             JSONObject json = new JSONObject();
-            JSONArray continentList = new JSONArray();
-
             String shortUrl = request.queryParams(Args.SHORT_URL);
-            System.out.println("shortUrl = [" + shortUrl+ "]");
+
+            //Lista di continenti. Ogni continente impacchetta sia le info sulle nazioni sia sulle città
+            JSONArray continentList = new JSONArray();
 
             try {
                 LinkedList<Object> continents = new RedisDAO().getUrlStat(shortUrl);
-                System.out.println("continentsSize = [" + continents.size()+ "]");
 
-                /*
-                 Il json di response contiene un insieme di json, ogni json è un continente.
-                 Ogni jsonContinente contiene nome continente, click e un altro json di nazioni.
-                 Ogni nazione è un json con nomeNazione, numeroClick e un json di città.
-                 Ogni città una coppia, nomeCittà e numeroClick
-                */
                 for(Object obj : continents){
                     //Creo il json per un continente
                     JSONObject continentJson = new JSONObject();
@@ -202,8 +194,8 @@ public class Server {
                     for(Object obj1: countries){
                         JSONObject countryJson = new JSONObject();
                         CountryRecord country = (CountryRecord) obj1;
-                        countryJson.put(Args.COUNTRY_NAME, country.getName());
-                        countryJson.put(Args.COUNTRY_CLICK, country.getClicks());
+                        countryJson.put(Args.NAME, country.getName());
+                        countryJson.put(Args.CLICK, country.getClicks());
 
                         //Creo la lista di città
                         JSONArray citiesList = new JSONArray();
@@ -211,8 +203,8 @@ public class Server {
                         for(Object obj2 : cities){
                             JSONObject cityJson = new JSONObject();
                             CityRecord city = (CityRecord) obj2;
-                            cityJson.put(Args.CITY_NAME, city.getName());
-                            cityJson.put(Args.CITY_CLICK, city.getClicks());
+                            cityJson.put(Args.NAME, city.getName());
+                            cityJson.put(Args.CLICK, city.getClicks());
 
                             citiesList.put(cityJson);
                         }
@@ -222,8 +214,8 @@ public class Server {
                     }
 
                     //Aggiungo un nuovo continente con classi e nazioni impacchettate per bene
-                    continentJson.put(Args.CONTINENT_NAME, continent.getName());
-                    continentJson.put(Args.CONTINENT_CLICK, continent.getClicks());
+                    continentJson.put(Args.NAME, continent.getName());
+                    continentJson.put(Args.CLICK, continent.getClicks());
                     continentJson.put(Args.COUNTRIES_LIST, countriesList);
 
                     continentList.put(continentJson);

@@ -187,6 +187,9 @@ urlShortener.controller('shortenCtrl',
 urlShortener.controller("userCtrl",
     function($scope, $http, $window){
 
+		//Loacl scope variables
+		$scope.continents;
+
 		//Account init
 		$scope.accountInit =
 				function(){
@@ -198,11 +201,6 @@ urlShortener.controller("userCtrl",
                     	alert("session expired");
                     	$window.location.href = ("/squiz/client/app/index.html");
                     }
-
-                    //Stat
-                    //$scope.totalShorteners = sessionStorage.stat_totalShorteners;
-                    //$scope.totalClick = sessionStorage.stat_totalClick;
-                    //$scope.records = sessionStorage.stat_records;
 
                     //Load Statistics
                     $scope.loadShortening();
@@ -232,11 +230,17 @@ urlShortener.controller("userCtrl",
 		//Show more statistics
 		$scope.showStat =
 				function(shortUrl){
-					alert(shortUrl);
-
 					$http.get("http://localhost:4567/showUrlStat?shortUrl=" + shortUrl)
 						.then(function(response){
-                        	alert("ok");
+                        	var geoloc = response.data.geolocStat;
+                        	var continentNames = [];
+
+                        	angular.forEach(geoloc, function(value){
+                        		this.push(value);     //TESTARE SE COSì FUNZIONA
+                        	}, continentsArray);
+
+							$scope.continents = continentsArray;
+
 						}, function(response){
                         	alert("shit");
 						});
