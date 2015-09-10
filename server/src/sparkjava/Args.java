@@ -35,5 +35,16 @@ public class Args {
     static final String STAT_SHORT_URL = "shortUrl";
     static final String STAT_LONG_URL = "longUrl";
     static final String STAT_CLICK = "click";
-    static final String STAT_POPULAR_COUNTRY = "popularCountry";
+
+    //Geoloc
+    static final String GEOLOC_STAT = "geolocStat";
+    static final String CONTINENT_NAME = "continentName";
+    static final String CONTINENT_CLICK = "continentClick";
+    static final String COUNTRIES_LIST = "countryList";
+    static final String COUNTRY_NAME = "countryName";
+    static final String COUNTRY_CLICK = "countryClick";
+    static final String CITIES_LIST = "citiesList";
+    static final String CITY_NAME = "continentName";
+    static final String CITY_CLICK = "continentClick";
+
 }

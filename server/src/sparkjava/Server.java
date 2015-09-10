@@ -1,6 +1,10 @@
 package sparkjava;
 
+import georecord.CityRecord;
+import georecord.ContinentRecord;
+import georecord.CountryRecord;
 import dao.RedisDAO;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import shortening.Shortener;
 import spark.Request;
@@ -166,16 +170,90 @@ public class Server {
             return json;
         });
 
+          /*
+        Getter delle statistiche su un singolo shortening, con numero di clicks geolocalizzati per continente, nazioni e città
+         */
+        get("/showUrlStat", (request, response) -> {
+            System.out.println("entra");
+            JSONObject json = new JSONObject();
+            JSONArray continentList = new JSONArray();
+
+            String shortUrl = request.queryParams(Args.SHORT_URL);
+            System.out.println("shortUrl = [" + shortUrl+ "]");
+
+            try {
+                LinkedList<Object> continents = new RedisDAO().getUrlStat(shortUrl);
+                System.out.println("continentsSize = [" + continents.size()+ "]");
+
+                /*
+                 Il json di response contiene un insieme di json, ogni json è un continente.
+                 Ogni jsonContinente contiene nome continente, click e un altro json di nazioni.
+                 Ogni nazione è un json con nomeNazione, numeroClick e un json di città.
+                 Ogni città una coppia, nomeCittà e numeroClick
+                */
+                for(Object obj : continents){
+                    //Creo il json per un continente
+                    JSONObject continentJson = new JSONObject();
+                    ContinentRecord continent = (ContinentRecord) obj;
+
+                    //Creo la lista di nazioni associata al continente
+                    JSONArray countriesList = new JSONArray();
+                    LinkedList<Object> countries = continent.getList();
+                    for(Object obj1: countries){
+                        JSONObject countryJson = new JSONObject();
+                        CountryRecord country = (CountryRecord) obj1;
+                        countryJson.put(Args.COUNTRY_NAME, country.getName());
+                        countryJson.put(Args.COUNTRY_CLICK, country.getClicks());
+
+                        //Creo la lista di città
+                        JSONArray citiesList = new JSONArray();
+                        LinkedList<Object> cities = country.getList();
+                        for(Object obj2 : cities){
+                            JSONObject cityJson = new JSONObject();
+                            CityRecord city = (CityRecord) obj2;
+                            cityJson.put(Args.CITY_NAME, city.getName());
+                            cityJson.put(Args.CITY_CLICK, city.getClicks());
+
+                            citiesList.put(cityJson);
+                        }
+
+                        countryJson.put(Args.CITIES_LIST, citiesList);
+                        countriesList.put(countryJson);
+                    }
+
+                    //Aggiungo un nuovo continente con classi e nazioni impacchettate per bene
+                    continentJson.put(Args.CONTINENT_NAME, continent.getName());
+                    continentJson.put(Args.CONTINENT_CLICK, continent.getClicks());
+                    continentJson.put(Args.COUNTRIES_LIST, countriesList);
+
+                    continentList.put(continentJson);
+                }
+
+            } catch (RuntimeException e) {
+                System.out.println("exception in showUrlStat server");
+            }
+
+            json.put(Args.GEOLOC_STAT, continentList);
+            setResponseHeader(request, response);
+            return json;
+        });
+
+        //Some settings
+        options("/*", (request, response) -> {
+            setOptionRequestResponseHeader(request, response);
+            return null;
+        });
+
         get("/*", (request, response) -> {
             RedisDAO dao = new RedisDAO();
             String shortUrl = (request.pathInfo()).substring(1);
             String longUrl = dao.findLongUrl(shortUrl);
 
-            if(longUrl.isEmpty()){
+            if (longUrl.isEmpty()) {
                 return Args.INVALID_SHORT_URL;
             } else {
                 response.redirect(longUrl);
-                try{
+                try {
                     dao.addClick(shortUrl);
                 } catch (RuntimeException e) {
                     System.out.println("error = disallowed click update");
@@ -185,12 +263,6 @@ public class Server {
 
             setResponseHeader(request, response);
             return "";
-        });
-
-        //Some settings
-        options("/*", (request, response) -> {
-            setOptionRequestResponseHeader(request, response);
-            return null;
         });
     }
 

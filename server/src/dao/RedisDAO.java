@@ -1,8 +1,8 @@
 package dao;
 
-import GeoRecord.CityRecord;
-import GeoRecord.ContinentRecord;
-import GeoRecord.CountryRecord;
+import georecord.CityRecord;
+import georecord.ContinentRecord;
+import georecord.CountryRecord;
 import utility.CalendarUtility;
 import utility.IPFinder;
 import utility.StatisticRecord;

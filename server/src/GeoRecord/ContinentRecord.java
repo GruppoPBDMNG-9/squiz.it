@@ -1,4 +1,4 @@
-package GeoRecord;
+package georecord;
 
 import java.util.LinkedList;
 

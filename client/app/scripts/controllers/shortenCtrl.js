@@ -232,9 +232,14 @@ urlShortener.controller("userCtrl",
 		//Show more statistics
 		$scope.showStat =
 				function(shortUrl){
-					alert("showStat:" + shortUrl);
+					alert(shortUrl);
+
+					$http.get("http://localhost:4567/showUrlStat?shortUrl=" + shortUrl)
+						.then(function(response){
+                        	alert("ok");
+						}, function(response){
+                        	alert("shit");
+						});
 				}
     }
 );
-	
-
