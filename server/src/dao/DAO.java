@@ -1,4 +1,5 @@
 package dao;
+
 import redis.clients.jedis.Jedis;
 
 import java.util.ArrayList;
@@ -17,16 +18,18 @@ import com.datastax.driver.core.Session;
 public abstract class DAO {
     private Jedis connection;
 
-    public void openConnection(String host, int port){
-        Jedis jedis = new Jedis(host, port);
-        connection=jedis;
+    public Jedis openConnection(String host, int port) {
+        connection = new Jedis(host, port);
+        return connection;
     }
 
-    public String getInstance(){
-        return connection.ping();
+    public boolean getInstance() {
+        if (connection.ping().equals("PONG"))
+            return true;
+        else return false;
     }
 
-    public void CloseConnection(Jedis jedis){
+    public void CloseConnection(Jedis jedis) {
         jedis.close();
     }
 

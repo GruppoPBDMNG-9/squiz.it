@@ -6,22 +6,24 @@ import utility.CalendarUtility;
 import utility.StatisticRecord;
 
 import redis.clients.jedis.Jedis;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map.Entry;
 
 public class RedisDAO extends DAO {
-    private static final String host="127.0.0.1";
-    private static final int port= 6379;
-    static RedisDAO connection;
+    private static final String host = "127.0.0.1";
+    private static final int port = 6379;
+    private static Jedis jedis;
+    public static final RedisDAO redis = new RedisDAO();
 
 
+    public RedisDAO() {
+        jedis = this.openConnection(host, port);
+    }
 
-    public static void main(String[] args){
-        //connection.openConnection(host, port);
-        Jedis jedis = new Jedis(host, port);
-        //RedisDAO prova = new RedisDAO();
+    public static void main(String[] args) {
         ArrayList<HashMap<String, HashMap<String, Object>>> lprova = new ArrayList<HashMap<String, HashMap<String, Object>>>();
         HashMap<String, HashMap<String, Object>> map1 = new HashMap<String, HashMap<String, Object>>();
         HashMap<String, Object> map2 = new HashMap<String, Object>();
@@ -45,7 +47,7 @@ public class RedisDAO extends DAO {
         users.put("Clicks", click);
 
         HashMap<String, String> fusers = new HashMap<String, String>();
-        for(Object o : users.entrySet()){
+        for (Object o : users.entrySet()) {
             Entry<String, Object> coppia = (Entry<String, Object>) o;
             fusers.put(coppia.getKey(), coppia.getValue().toString());
         }
@@ -53,10 +55,9 @@ public class RedisDAO extends DAO {
         jedis.hmset("Utente 1", fusers);
 
 
-
     }
 
-    public boolean availableUrl(String url){
+    public boolean availableUrl(String url) {
         /*
         Controlla nella supercolonna degli shortening se la customizzazione scelta è disponibile
          */
@@ -72,11 +73,11 @@ public class RedisDAO extends DAO {
     - data in cui è stato effettuato lo shortening
     - username (eventualmente null)
      */
-    public void saveUrl(String longUrl, String shortUrl, String username){
+    public void saveUrl(String longUrl, String shortUrl, String username) {
         final String UNDEFINED_USER = "---"; //se l'url va messo fra quelli anonimi arriva questo username
         final String data = new CalendarUtility().getCurrentData();
 
-        if(username.equals(UNDEFINED_USER)){
+        if (username.equals(UNDEFINED_USER)) {
             //Inserisci l'url fra quelli anonimi
         } else {
             //Inserisci l'url associato all'utente
@@ -91,11 +92,11 @@ public class RedisDAO extends DAO {
       Ritorna TRUE se l'username esiste && se la password coincide con l'username.
       Ritorna FALSE altrmenti
        */
-    public boolean login(String username, String password){
+    public boolean login(String username, String password) {
         return true;
     }
 
-    public HashMap<String, Object> loadUserStat(String username){
+    public HashMap<String, Object> loadUserStat(String username) {
         /* PER DONATO E CORRADO
         Questo metodo resistuisce la statistiche dell'utente avente l'username passato come argomento.
         Più nel dettaglio ritorna 3 oggetti:
@@ -112,7 +113,7 @@ public class RedisDAO extends DAO {
         */
 
         //Map di esempio
-        HashMap<String, Object> result  = new HashMap<String, Object>();
+        HashMap<String, Object> result = new HashMap<String, Object>();
 
         //Due shortening di prova
         ArrayList<String> args1 = new ArrayList<String>();
@@ -136,12 +137,12 @@ public class RedisDAO extends DAO {
 
         int totalShortening = list.size();
         int totalClicks = 0;
-        for(StatisticRecord record : list){
+        for (StatisticRecord record : list) {
             totalClicks += Integer.parseInt(record.getClick());
         }
 
         result.put("totalShorteners", totalShortening);
-        result.put("totalClick" , totalClicks);
+        result.put("totalClick", totalClicks);
         result.put("records", list);
 
         return result;
@@ -150,14 +151,14 @@ public class RedisDAO extends DAO {
     /*
     Used in SINGUP phase, and check the username availability
      */
-    public boolean checkUsernameAvailability(String username){
+    public boolean checkUsernameAvailability(String username) {
         return true;
     }
 
     /*
     Register a new user on out platform. Welcome on board!
      */
-    public void saveNewUser(String username, String password){
+    public void saveNewUser(String username, String password) {
 
     }
 
@@ -168,7 +169,7 @@ public class RedisDAO extends DAO {
     Se non esiste lo shortUrl corrispondente lo capisco dal fatto che la stringa ritornata è vuota, quindi lo gestisco direttamente nel server,
     questo metodo deve ritornare o una stringa piena (se esiste lo shortUrl) o una stringa vuota, e basta. Vi amo.
      */
-    public String findLongUrl(String shortUrl){
+    public String findLongUrl(String shortUrl) {
         String longUrl = ""; //variabile da ritornare
         longUrl = "http://google.it"; //fare query al db, se esiste la corrispondenza assegnarla. Ho messo google come prova
         return longUrl; //ritornare la variabile
@@ -190,7 +191,7 @@ public class RedisDAO extends DAO {
       Se la nazione è già presente incrementa il valore, se non esiste la aggiunge. Io vi do la nazione, voi la inserite.
       Con affetto.
      */
-    public void addClick(String shortUrl, String country, String data){
+    public void addClick(String shortUrl, String country, String data) {
 
     }
 
@@ -206,7 +207,7 @@ public class RedisDAO extends DAO {
 
     In questo modo abbiamo un'unica struttura dati in cui abbiamo tutto innestato, e con una sola query ci portiamo tutto su.
      */
-    public LinkedList<Object> getUrlStat(String shortUrl){
+    public LinkedList<Object> getUrlStat(String shortUrl) {
         LinkedList<Object> continents = new LinkedList<Object>();
 
         //START EUROPA
@@ -228,7 +229,7 @@ public class RedisDAO extends DAO {
     /*
     Get all stats data from an username's shorteners
      */
-    public LinkedList<LinkedList<String>> getData(String username){
+    public LinkedList<LinkedList<String>> getData(String username) {
         LinkedList<LinkedList<String>> resultList = new LinkedList<LinkedList<String>>();
 
         //oggetti per il testing del client
