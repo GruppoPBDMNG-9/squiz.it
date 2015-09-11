@@ -12,7 +12,12 @@ import java.util.Map.Entry;
 public class RedisDAO extends DAO {
     private static final String host="127.0.0.1";
     private static final int port= 6379;
-    static RedisDAO connection;
+    private static Jedis jedis;
+
+    private RedisDAO{
+        jedis=this.openConnection(host, port);
+    }
+
 
 
 

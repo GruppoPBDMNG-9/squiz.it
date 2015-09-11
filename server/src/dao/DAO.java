@@ -17,9 +17,9 @@ import com.datastax.driver.core.Session;
 public abstract class DAO {
     private Jedis connection;
 
-    public void openConnection(String host, int port){
-        Jedis jedis = new Jedis(host, port);
-        connection=jedis;
+    public Jedis openConnection(String host, int port){
+        connection = new Jedis(host, port);
+        return connection;
     }
 
     public String getInstance(){
