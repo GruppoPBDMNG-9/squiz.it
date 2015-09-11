@@ -5,11 +5,56 @@ import georecord.CountryRecord;
 import utility.CalendarUtility;
 import utility.StatisticRecord;
 
+import redis.clients.jedis.Jedis;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map.Entry;
 
 public class RedisDAO extends DAO {
+    private static final String host="127.0.0.1";
+    private static final int port= 6379;
+    static RedisDAO connection;
+
+
+
+    public static void main(String[] args){
+        //connection.openConnection(host, port);
+        Jedis jedis = new Jedis(host, port);
+        //RedisDAO prova = new RedisDAO();
+        ArrayList<HashMap<String, HashMap<String, Object>>> lprova = new ArrayList<HashMap<String, HashMap<String, Object>>>();
+        HashMap<String, HashMap<String, Object>> map1 = new HashMap<String, HashMap<String, Object>>();
+        HashMap<String, Object> map2 = new HashMap<String, Object>();
+        HashMap<String, Object> click = new HashMap<String, Object>();
+        HashMap<String, Object> inclick1 = new HashMap<String, Object>();
+        HashMap<String, Object> inclick2 = new HashMap<String, Object>();
+
+
+        inclick1.put("Inclick11", "Inclick11");
+        inclick1.put("Inclick12", "Inclick12");
+        inclick2.put("Inclick21", "Inclick21");
+        inclick2.put("Inclick22", "Inclick22");
+        click.put("Click1", inclick1);
+        click.put("Click2", inclick2);
+
+        System.out.println(click.toString());
+
+        HashMap<String, Object> users = new HashMap<String, Object>();
+        users.put("Nome", "Corrado");
+        users.put("Cognome", "Giancaspro");
+        users.put("Clicks", click);
+
+        HashMap<String, String> fusers = new HashMap<String, String>();
+        for(Object o : users.entrySet()){
+            Entry<String, Object> coppia = (Entry<String, Object>) o;
+            fusers.put(coppia.getKey(), coppia.getValue().toString());
+        }
+
+        jedis.hmset("Utente 1", fusers);
+
+
+
+    }
 
     public boolean availableUrl(String url){
         /*
@@ -20,7 +65,7 @@ public class RedisDAO extends DAO {
     }
 
     /*
-    Salva un nuovo url shortening. Se è associato ad un username lo associa ad esso, altrmenti finisce fra gli anonmi.
+    Salva un nuovo url shortening. Se è associato ad un username lo associa ad esso, altrmenti finisce fra gli anonimi.
     Le cose da salvare sono quindi:
     - short url
     - long url
