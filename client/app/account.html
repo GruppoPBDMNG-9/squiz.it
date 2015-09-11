@@ -1,0 +1,139 @@
+
+<!DOCTYPE html>
+<html ng-app="urlShortener">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>squiz.it</title>
+    <!--Set up and load controllers -->
+    <script src="../bower_components/angular/angular.js"></script>
+    <script src="scripts/controllers/shortenCtrl.js"></script>
+
+
+    <!-- Bootstrap core CSS -->
+    <link href="styles/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <link href="styles/bootstrap/jumbotron.css" rel="stylesheet">
+    <!-- Other normal CSS styles -->
+    <link href="styles/imageStyle.css" rel="stylesheet">
+
+
+</head>
+
+<body ng-controller="userCtrl" data-ng-init="accountInit()">
+
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <a class="navbar-brand">squiz.it</a>
+        </div>
+
+        <div class="navbar-right">
+            <a class="navbar-brand">{{username}}</a>
+            <form class="navbar-form navbar-right">
+                <button type="submit" class="btn btn-success" ng-click="logout()">Logout</button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<!-- Main jumbotron for a primary marketing message or call to action -->
+<div class="jumbotron">
+    <div class="container">
+        <h1>
+            Your SQUIZ!
+        </h1>
+
+        <div ng-controller="shortenCtrl" id="shortenCtrlDiv">
+            <form>
+                <input type="text" placeholder="Insert you long url here..." class="form-control" ng-model="longUrl">
+                <br>
+                <button type="submit" class="btn btn-primary btn-lg" ng-click="letsShortenIt()">Let's shorten it! &raquo;</button>
+            </form>
+
+            <div id="customizeForm">
+                <p>
+                    {{msg}} {{domain}} {{shortUrl}} <br>
+                    {{customizeMsg}}
+                </p>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!--STATISTICHE-->
+<div class="container">
+    <h3 class="sub-header">GLOBAL STAT</h3>
+    <ul>
+        <li>Total shorteners: {{totalShorteners}}</li>
+        <li>Total click: {{totalClick}}</li>
+    </ul>
+
+    <ul ng-repeat="continent in continentList">
+        <li>
+            {{continent.name}} : {{continent.click}}
+            <span>
+                <button type="submit" class="btn btn-success" ng-click="showCountryClick(shortUrl, continent)">view more</button>
+            </span>
+        </li>
+    </ul>
+
+    <ul ng-repeat="country in countryList">
+        <li>
+            {{country.name}} : {{country.click}}
+        </li>
+    </ul>
+
+    <h3 class="sub-header">HISTORY</h3>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Data</th>
+                <th>Short Url</th>
+                <th>Long Url</th>
+                <th>Click</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            <tr ng-repeat="record in records">
+                <td>{{record.data}}</td>
+                <td>{{record.shortUrl}}</td>
+                <td>{{record.longUrl}}</td>
+                <td>{{record.click}}</td>
+                <td>
+                    <button type="submit" class="btn btn-success" ng-click="showContinentClick(record.shortUrl)">show stat</button>
+                </td>
+            </tr>
+
+            </tbody>
+        </table>
+        </div>
+</div>
+
+
+
+<div class="container">
+    <footer>
+        <p>&copy; SquizTeam 2015</p>
+    </footer>
+</div> <!-- /container -->
+
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="../../dist/js/bootstrap.min.js"></script>
+<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+<script src="../../assets/js/ie10-viewport-bug-workaround.js"></script>
+</body>
+</html>
