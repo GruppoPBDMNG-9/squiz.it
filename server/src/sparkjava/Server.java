@@ -1,7 +1,5 @@
 package sparkjava;
 
-import georecord.ContinentRecord;
-import georecord.CountryRecord;
 import dao.RedisDAO;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -15,6 +13,7 @@ import utility.StatisticRecord;
 
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map.Entry;
 
 import static spark.Spark.get;
 import static spark.Spark.options;
@@ -172,56 +171,57 @@ public class Server {
         });
 
           /*
-        Getter delle statistiche su un singolo shortening, con numero di clicks geolocalizzati per continente, nazioni e città
+        Getter per i click di uno shortUrl suddivisi per continente
          */
-        get("/showUrlStat", (request, response) -> {
+        get("/showContinentClick", (request, response) -> {
             JSONObject json = new JSONObject();
             String shortUrl = request.queryParams(Args.SHORT_URL);
 
             JSONArray continentList = new JSONArray();
             try {
-                LinkedList<Object> continents = new RedisDAO().getUrlStat(shortUrl);
-
-                for(Object obj : continents){
-                    //Creo il json per un continente
-                    JSONObject continentJson = new JSONObject();
-                    ContinentRecord continent = (ContinentRecord) obj;
-
-                    //Creo la lista di nazioni associata al continente
-                    JSONArray countriesList = new JSONArray();
-                    LinkedList<Object> countries = continent.getList();
-                    for(Object obj1: countries){
-                        JSONObject countryJson = new JSONObject();
-                        CountryRecord country = (CountryRecord) obj1;
-                        countryJson.put(Args.NAME, country.getName());
-                        countryJson.put(Args.CLICK, country.getClicks());
-
-                        countriesList.put(countryJson);
-                    }
-
-                    //Aggiungo un nuovo continente con classi e nazioni impacchettate per bene
-                    continentJson.put(Args.NAME, continent.getName());
-                    continentJson.put(Args.CLICK, continent.getClicks());
-                    continentJson.put(Args.COUNTRIES_LIST, countriesList);
-
-                    continentList.put(continentJson);
+                HashMap<String, Integer> continents = new RedisDAO().getContinentClick(shortUrl);
+                for(Entry<String, Integer> continent : continents.entrySet()){
+                    JSONObject nextContinent = new JSONObject();
+                    nextContinent.put(Args.NAME, continent.getKey());
+                    nextContinent.put(Args.CLICK, continent.getValue());
+                    continentList.put(nextContinent);
                 }
-
             } catch (RuntimeException e) {
                 System.out.println("exception in showUrlStat server");
             }
 
-            json.put(Args.GEOLOC_STAT, continentList);
+            json.put(Args.CONTINENT_LIST, continentList);
             setResponseHeader(request, response);
             return json;
         });
 
-        //Some settings
-        options("/*", (request, response) -> {
-            setOptionRequestResponseHeader(request, response);
-            return null;
+          /*
+        Getter per i click di uno shortUrl suddivisi per nazioni di uno specifico continente
+         */
+        get("/showCountryClick", (request, response) -> {
+            JSONObject json = new JSONObject();
+            String shortUrl = request.queryParams(Args.SHORT_URL);
+            String continent = request.queryParams(Args.CONTINENT);
+
+            JSONArray countryList = new JSONArray();
+            try {
+                HashMap<String, Integer> countries = new RedisDAO().getCountryClick(shortUrl, continent);
+                for(Entry<String, Integer> country : countries.entrySet()){
+                    JSONObject nextCountry = new JSONObject();
+                    nextCountry.put(Args.NAME, country.getKey());
+                    nextCountry.put(Args.CLICK, country.getValue());
+                    countryList.put(nextCountry);
+                }
+            } catch (RuntimeException e) {
+                System.out.println("exception in showUrlStat server");
+            }
+
+            json.put(Args.COUNTRIES_LIST, countryList);
+            setResponseHeader(request, response);
+            return json;
         });
 
+        //Click!
         get("/*", (request, response) -> {
             RedisDAO dao = new RedisDAO();
             String shortUrl = (request.pathInfo()).substring(1);
@@ -232,9 +232,11 @@ public class Server {
             } else {
                 response.redirect(longUrl);
                 try {
-                    String country = new IPFinder().getCountry();
+                    IPFinder ipFinder = new IPFinder();
+                    String continent = ipFinder.getContinent();
+                    String country = ipFinder.getCountry();
                     String data = new CalendarUtility().getCurrentData();
-                    dao.addClick(shortUrl, country, data);
+                    dao.addClick(shortUrl, continent, country, data);
                 } catch (RuntimeException e) {
                     System.out.println("error = disallowed click update");
                 }
@@ -244,6 +246,13 @@ public class Server {
             setResponseHeader(request, response);
             return "";
         });
+
+        //Some settings
+        options("/*", (request, response) -> {
+            setOptionRequestResponseHeader(request, response);
+            return null;
+        });
+
     }
 
     /*

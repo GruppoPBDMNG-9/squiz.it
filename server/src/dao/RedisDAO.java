@@ -1,12 +1,14 @@
 package dao;
 
-import georecord.ContinentRecord;
-import georecord.CountryRecord;
+import redis.clients.jedis.Jedis;
 import utility.CalendarUtility;
 import utility.StatisticRecord;
 
+<<<<<<< HEAD
 import redis.clients.jedis.Jedis;
 
+=======
+>>>>>>> 8e3a763b71d7501897e9da251f6c749e08db1df7
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -175,36 +177,45 @@ public class RedisDAO extends DAO {
         return longUrl; //ritornare la variabile
     }
 
-    /*
-    Il metodo viene chiamato dal server una volta che da uno shortUrl ci si è ricondotti al longUrl.
-    Ogni click ha associato una liste di chiavi-valori, dove la chiave è una nazione e il valore indica il numero di click provenienti da tale nazione.
-    Esempio:
-
-    Link1
-     {Francia: 5
-      Italia: 5
-      Giappone: 6
-      Cina: 1
-      }
-
-      Bene, questo metodo aggiunge una nazione alla lista associata alla shortUrl (che sarà chiave primaria).
-      Se la nazione è già presente incrementa il valore, se non esiste la aggiunge. Io vi do la nazione, voi la inserite.
-      Con affetto.
-     */
-    public void addClick(String shortUrl, String country, String data) {
+   /*
+   Prendere i parametri e metterli nelle statistiche
+    */
+    public void addClick(String shortUrl, String continent, String country, String data){
 
     }
 
     /*
-    Questo metodo restituisce una lista di luoghi geografici da cui è stato effettuato un click. Un elemento della lista è rappresentato da
-    tre strutture dati derivate dallo stesso morfismo, con lo stesso comportamento che rappresentano però 3 entità differenti.
-    I luoghi da cui viene effettuato un click vengono classificati in continenti, nazioni e città.
+    Richiede tutti i click suddivisi per continenti associati ad uno shortUrl
+     */
+<<<<<<< HEAD
+    public void addClick(String shortUrl, String country, String data) {
+=======
+    public HashMap<String, Integer> getContinentClick(String shortUrl){
+        HashMap<String, Integer> continentResult = new HashMap<String, Integer>();
+>>>>>>> 8e3a763b71d7501897e9da251f6c749e08db1df7
 
-    L'elemento di ritorno è una lista.
-    Ogni elemento della lista è una tripla (nomeContinente - numeroClick - Nazioni).
-    Nazioni è una lista di nazioni. Ogni nazione è una tripla (nomeNazione - numeroClick - Città)
-    Città a sua volta è una lista di città. Ogni città è una coppia (nomeCittà - numeroClick)
+        //inizializzare e ritornare questo hashmap. per ora metto un hashmap di prova
+        continentResult.put("Europe",20);
+        continentResult.put("Asia", 10);
 
+        return continentResult;
+    }
+
+    /*
+    Richiede tutti i click suddivisi per nazione di uno specifico continente associati ad uno specifico short url
+     */
+    public HashMap<String, Integer> getCountryClick(String shortUrl, String continent){
+        HashMap<String, Integer> countriesResult = new HashMap<String, Integer>();
+
+        //stessa cosa dei continenti, questa è giusto una prova
+        if(continent.equalsIgnoreCase("Europe")){
+            countriesResult.put("Italy",13);
+            countriesResult.put("Germany", 7);
+        } else {
+            countriesResult.put("Japan", 10);
+        }
+
+<<<<<<< HEAD
     In questo modo abbiamo un'unica struttura dati in cui abbiamo tutto innestato, e con una sola query ci portiamo tutto su.
      */
     public LinkedList<Object> getUrlStat(String shortUrl) {
@@ -224,6 +235,9 @@ public class RedisDAO extends DAO {
         //END ASIA
 
         return continents;
+=======
+        return countriesResult;
+>>>>>>> 8e3a763b71d7501897e9da251f6c749e08db1df7
     }
 
     /*
