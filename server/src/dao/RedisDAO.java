@@ -13,18 +13,17 @@ public class RedisDAO extends DAO {
     private static final String host="127.0.0.1";
     private static final int port= 6379;
     private static Jedis jedis;
+    static RedisDAO redis = new RedisDAO();
+
 
     private RedisDAO{
-        jedis=this.openConnection(host, port);
+        jedis=redis.openConnection(host, port);
     }
 
 
 
 
     public static void main(String[] args){
-        //connection.openConnection(host, port);
-        Jedis jedis = new Jedis(host, port);
-        //RedisDAO prova = new RedisDAO();
         ArrayList<HashMap<String, HashMap<String, Object>>> lprova = new ArrayList<HashMap<String, HashMap<String, Object>>>();
         HashMap<String, HashMap<String, Object>> map1 = new HashMap<String, HashMap<String, Object>>();
         HashMap<String, Object> map2 = new HashMap<String, Object>();
