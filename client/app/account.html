@@ -76,8 +76,19 @@
         <li>Total click: {{totalClick}}</li>
     </ul>
 
-    <ul ng-repeat="continent in continents">
-        <li>{{continent}}</li>
+    <ul ng-repeat="continent in continentList">
+        <li>
+            {{continent.name}} : {{continent.click}}
+            <span>
+                <button type="submit" class="btn btn-success" ng-click="showCountryClick(shortUrl, continent)">view more</button>
+            </span>
+        </li>
+    </ul>
+
+    <ul ng-repeat="country in countryList">
+        <li>
+            {{country.name}} : {{country.click}}
+        </li>
     </ul>
 
     <h3 class="sub-header">HISTORY</h3>
@@ -99,7 +110,7 @@
                 <td>{{record.longUrl}}</td>
                 <td>{{record.click}}</td>
                 <td>
-                    <button type="submit" class="btn btn-success" ng-click="showStat(record.shortUrl)">show stat</button>
+                    <button type="submit" class="btn btn-success" ng-click="showContinentClick(record.shortUrl)">show stat</button>
                 </td>
             </tr>
 

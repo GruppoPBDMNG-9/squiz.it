@@ -227,23 +227,29 @@ urlShortener.controller("userCtrl",
                         });
 				}
 
-		//Show more statistics
-		$scope.showStat =
+		//Show continents statistics
+		$scope.showContinentClick =
 				function(shortUrl){
-					$http.get("http://localhost:4567/showUrlStat?shortUrl=" + shortUrl)
+					$scope.selectedUrl = shortUrl;
+
+					$http.get("http://localhost:4567/showContinentClick?shortUrl=" + shortUrl)
 						.then(function(response){
-                        	var geoloc = response.data.geolocStat;
-                        	var continentNames = [];
-
-                        	angular.forEach(geoloc, function(value){
-                        		this.push(value);     //TESTARE SE COSì FUNZIONA
-                        	}, continentsArray);
-
-							$scope.continents = continentsArray;
-
+                        	$scope.continentList = response.data.continentList;
 						}, function(response){
-                        	alert("shit");
+                        	alert("error in showContinentClick");
 						});
 				}
+
+		//Show continents statistics
+        $scope.showCountryClick =
+        		function(continent){
+        			$http.get("http://localhost:4567/showCountryClick?shortUrl=" + $scope.selectedUrl + "&continent=" + continent)
+        				.then(function(response){
+                        	$scope.countryList = response.data.countryList;
+                        }, function(response){
+                        	alert("error in showCountryClick");
+                        });
+        			}
+
     }
 );
