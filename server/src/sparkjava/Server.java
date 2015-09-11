@@ -1,6 +1,5 @@
 package sparkjava;
 
-import georecord.CityRecord;
 import georecord.ContinentRecord;
 import georecord.CountryRecord;
 import dao.RedisDAO;
@@ -9,7 +8,9 @@ import org.json.JSONObject;
 import shortening.Shortener;
 import spark.Request;
 import spark.Response;
+import utility.CalendarUtility;
 import utility.FormatStringChecker;
+import utility.IPFinder;
 import utility.StatisticRecord;
 
 import java.util.HashMap;
@@ -177,9 +178,7 @@ public class Server {
             JSONObject json = new JSONObject();
             String shortUrl = request.queryParams(Args.SHORT_URL);
 
-            //Lista di continenti. Ogni continente impacchetta sia le info sulle nazioni sia sulle città
             JSONArray continentList = new JSONArray();
-
             try {
                 LinkedList<Object> continents = new RedisDAO().getUrlStat(shortUrl);
 
@@ -197,19 +196,6 @@ public class Server {
                         countryJson.put(Args.NAME, country.getName());
                         countryJson.put(Args.CLICK, country.getClicks());
 
-                        //Creo la lista di città
-                        JSONArray citiesList = new JSONArray();
-                        LinkedList<Object> cities = country.getList();
-                        for(Object obj2 : cities){
-                            JSONObject cityJson = new JSONObject();
-                            CityRecord city = (CityRecord) obj2;
-                            cityJson.put(Args.NAME, city.getName());
-                            cityJson.put(Args.CLICK, city.getClicks());
-
-                            citiesList.put(cityJson);
-                        }
-
-                        countryJson.put(Args.CITIES_LIST, citiesList);
                         countriesList.put(countryJson);
                     }
 
@@ -246,7 +232,9 @@ public class Server {
             } else {
                 response.redirect(longUrl);
                 try {
-                    dao.addClick(shortUrl);
+                    String country = new IPFinder().getCountry();
+                    String data = new CalendarUtility().getCurrentData();
+                    dao.addClick(shortUrl, country, data);
                 } catch (RuntimeException e) {
                     System.out.println("error = disallowed click update");
                 }

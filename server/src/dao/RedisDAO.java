@@ -1,10 +1,8 @@
 package dao;
 
-import georecord.CityRecord;
 import georecord.ContinentRecord;
 import georecord.CountryRecord;
 import utility.CalendarUtility;
-import utility.IPFinder;
 import utility.StatisticRecord;
 
 import java.util.ArrayList;
@@ -68,6 +66,9 @@ public class RedisDAO extends DAO {
         Vi voglio bene :)
         */
 
+        //Map di esempio
+        HashMap<String, Object> result  = new HashMap<String, Object>();
+
         //Due shortening di prova
         ArrayList<String> args1 = new ArrayList<String>();
         args1.add("30/08/2015");
@@ -87,10 +88,6 @@ public class RedisDAO extends DAO {
         LinkedList<StatisticRecord> list = new LinkedList<StatisticRecord>();
         list.add(record1);
         list.add(record2);
-
-
-        //Map di esempio
-        HashMap<String, Object> result  = new HashMap<String, Object>();
 
         int totalShortening = list.size();
         int totalClicks = 0;
@@ -148,9 +145,8 @@ public class RedisDAO extends DAO {
       Se la nazione è già presente incrementa il valore, se non esiste la aggiunge. Io vi do la nazione, voi la inserite.
       Con affetto.
      */
-    public void addClick(String shortUrl){
-        String country = new IPFinder().getCountry();
-        //bla bla bla
+    public void addClick(String shortUrl, String country, String data){
+
     }
 
     /*
@@ -166,45 +162,18 @@ public class RedisDAO extends DAO {
     In questo modo abbiamo un'unica struttura dati in cui abbiamo tutto innestato, e con una sola query ci portiamo tutto su.
      */
     public LinkedList<Object> getUrlStat(String shortUrl){
-        //Reperire le statistiche associate allo shortUrl, che sarà chave primaria. Qui non lo faccio perchè è solo un test.
-
-        //Returning results-------/
         LinkedList<Object> continents = new LinkedList<Object>();
-        //------------------------/
 
         //START EUROPA
         LinkedList<Object> europenCountryList = new LinkedList<Object>();
-
-        //città italiane
-        LinkedList<Object> italianCityList = new LinkedList<Object>();
-        italianCityList.add(new CityRecord("Rome", 3));
-        italianCityList.add(new CityRecord("Milan", 10));
-
-        //città francesci
-        LinkedList<Object> frenchCityList = new LinkedList<Object>();
-        frenchCityList.add(new CityRecord("Paris", 7));
-
-        //aggiungo le nazioni, che ormai incapsulano le città, in un continente
-        europenCountryList.add(new CountryRecord("Italy", 13, italianCityList));
-        europenCountryList.add(new CountryRecord("France", 7, frenchCityList));
-
-        //aggiunto il continente alla lista suprema :)
+        europenCountryList.add(new CountryRecord("Italy", 13));
+        europenCountryList.add(new CountryRecord("France", 7));
         continents.add(new ContinentRecord("Europe", 20, europenCountryList));
         //END EUROPA
 
-        //-----------------------------
-
         //START ASIA
         LinkedList<Object> asianCountryList = new LinkedList<Object>();
-
-        //città giapponesi
-        LinkedList<Object> japaneseCityList = new LinkedList<Object>();
-        japaneseCityList.add(new CityRecord("Tokyo", 5));
-        japaneseCityList.add(new CityRecord("Kyoto", 1));
-        japaneseCityList.add(new CityRecord("Osaka", 2));
-
-        asianCountryList.add(new CountryRecord("Japan", 8, japaneseCityList));
-
+        asianCountryList.add(new CountryRecord("Japan", 8));
         continents.add(new ContinentRecord("Asia", 8, asianCountryList));
         //END ASIA
 
