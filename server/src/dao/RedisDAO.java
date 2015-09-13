@@ -7,7 +7,6 @@ import utility.StatisticRecord;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Map.Entry;
 
 public class RedisDAO extends DAO {
     private static final String host="127.0.0.1";
@@ -15,8 +14,8 @@ public class RedisDAO extends DAO {
     private static Jedis jedis;
     static RedisDAO redis = new RedisDAO();
 
-
-    private RedisDAO{
+    /*
+    public RedisDAO(){
         jedis=redis.openConnection(host, port);
     }
 
@@ -57,6 +56,7 @@ public class RedisDAO extends DAO {
 
 
     }
+    */
 
     public boolean availableUrl(String url){
         /*

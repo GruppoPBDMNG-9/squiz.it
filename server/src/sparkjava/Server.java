@@ -190,9 +190,8 @@ public class Server {
                 System.out.println("exception in showUrlStat server");
             }
 
-            json.put(Args.CONTINENT_LIST, continentList);
             setResponseHeader(request, response);
-            return json;
+            return continentList;
         });
 
           /*

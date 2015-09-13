@@ -1,8 +1,4 @@
-var urlShortener = angular.module('urlShortener', []);
-
-//Shortening operation handling
-urlShortener.controller('shortenCtrl',
-	function($scope, $http, $compile, $window, $location){
+app.controller('shortenCtrl', function($scope, $http, $compile, $window, $location){
 		//Variables
         $scope.msg = "";
         $scope.customizeMsg = "";
@@ -180,76 +176,5 @@ urlShortener.controller('shortenCtrl',
                             		alert("Some errors occurred during login");
                             	});
             			}
-    }
-);
-
-//USER CTRL
-urlShortener.controller("userCtrl",
-    function($scope, $http, $window){
-
-		//Loacl scope variables
-		$scope.continents;
-
-		//Account init
-		$scope.accountInit =
-				function(){
-					//check
-					var loggedIn = sessionStorage.loggedIn;
-                    if(loggedIn==="true"){
-                    	$scope.username = sessionStorage.username;
-                    } else {
-                    	alert("session expired");
-                    	$window.location.href = ("/squiz/client/app/index.html");
-                    }
-
-                    //Load Statistics
-                    $scope.loadShortening();
-				}
-
-		//Logout
-    	$scope.logout =
-    			function(){
-    				sessionStorage.username = "";
-    				sessionStorage.loggedIn = false;
-    				$window.location.href = ("/squiz/client/app/index.html");
-    			}
-
-		//Load statistics
-		$scope.loadShortening =
-				function(){
-					$http.get("http://localhost:4567/loadShortening?username=" + $scope.username)
-						.then(function(response){
-							$scope.totalShorteners = response.data.totalShorteners
-                        	$scope.totalClick = response.data.totalClick;
-                        	$scope.records = response.data.records;
-						}, function(response){
-                        	alert("error in loadShortening");
-                        });
-				}
-
-		//Show continents statistics
-		$scope.showContinentClick =
-				function(shortUrl){
-					$scope.selectedUrl = shortUrl;
-
-					$http.get("http://localhost:4567/showContinentClick?shortUrl=" + shortUrl)
-						.then(function(response){
-                        	$scope.continentList = response.data.continentList;
-						}, function(response){
-                        	alert("error in showContinentClick");
-						});
-				}
-
-		//Show continents statistics
-        $scope.showCountryClick =
-        		function(continent){
-        			$http.get("http://localhost:4567/showCountryClick?shortUrl=" + $scope.selectedUrl + "&continent=" + continent)
-        				.then(function(response){
-                        	$scope.countryList = response.data.countryList;
-                        }, function(response){
-                        	alert("error in showCountryClick");
-                        });
-        			}
-
     }
 );
