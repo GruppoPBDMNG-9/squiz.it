@@ -6,10 +6,7 @@ import org.json.JSONObject;
 import shortening.Shortener;
 import spark.Request;
 import spark.Response;
-import utility.CalendarUtility;
-import utility.FormatStringChecker;
-import utility.IPFinder;
-import utility.StatisticRecord;
+import utility.*;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -216,6 +213,30 @@ public class Server {
             }
 
             json.put(Args.COUNTRIES_LIST, countryList);
+            setResponseHeader(request, response);
+            return json;
+        });
+
+        /*
+        Estrae le statistiche dell'ultimo periodo (da decidere quanto lungo)
+         */
+        get("/getLastStat", (request, response) -> {
+            JSONArray json = new JSONArray();
+            String username = request.queryParams(Args.USERNAME);
+
+            try {
+                LinkedList<Pair> list = new RedisDAO().getLastStat(username);
+                for(Pair pair : list){
+                    JSONObject nextMonth = new JSONObject();
+                    nextMonth.put(Args.NAME, pair.getMonth());
+                    nextMonth.put(Args.CLICK, pair.getClick());
+                    json.put(nextMonth);
+                }
+
+            }  catch (RuntimeException e){
+                e.printStackTrace();
+            }
+
             setResponseHeader(request, response);
             return json;
         });

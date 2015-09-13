@@ -40,7 +40,6 @@ public class Args {
     static final String NAME = "name";
     static final String CLICK = "click";
     static final String CONTINENT = "continent";
-    static final String CONTINENT_LIST = "continentList";
     static final String COUNTRIES_LIST = "countryList";
 
 }

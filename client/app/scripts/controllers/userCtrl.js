@@ -4,8 +4,19 @@ app.controller("userCtrl", function($scope, $http, $window, $compile){
 		$scope.continents;
 		$scope.selectedUrl;
 		$scope.detailsMsg = "Select a short url to show its details";
+
+		//Continents stat
 		$scope.labels = [];
 		$scope.data = [];
+
+		//Last year stat
+		$scope.labelsTime = [];
+        $scope.seriesTime = [];
+        $scope.dataTime = [];
+
+        $scope.onClick = function (points, evt) {
+        	console.log(points, evt);
+        };
 
 		//Account init
 		$scope.accountInit =
@@ -21,6 +32,7 @@ app.controller("userCtrl", function($scope, $http, $window, $compile){
 
                     //Load Statistics
                     $scope.loadShortening();
+                    $scope.getLastStat();
 				}
 
 		//Logout
@@ -105,5 +117,29 @@ app.controller("userCtrl", function($scope, $http, $window, $compile){
                         });
         			}
 
-    }
+        //Load last year stats
+        $scope.getLastStat =
+        		function(){
+        			$http.get("http://localhost:4567/getLastStat?username=" + $scope.username)
+        				.then(function(response){
+        					var monthList = response.data;
+
+        					//Set params for graph
+        					var names = [];
+        					var click = [];
+        					monthList.forEach(function(month){
+        						names.push(month.name);
+        						click.push(month.click);
+        					});
+
+        					$scope.labelsTime = names;
+        					$scope.dataTime.push(click);
+
+        				}, function(response){
+        					alert("error in getLastStat");
+        				});
+        		}
+
+}
+
 );

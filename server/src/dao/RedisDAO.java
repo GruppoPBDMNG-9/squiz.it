@@ -2,6 +2,7 @@ package dao;
 
 import redis.clients.jedis.Jedis;
 import utility.CalendarUtility;
+import utility.Pair;
 import utility.StatisticRecord;
 
 import java.util.ArrayList;
@@ -246,6 +247,48 @@ public class RedisDAO extends DAO {
         resultList.add(url3);
 
         return resultList;
+    }
+
+    /*
+    Prende calcola il numero di click per ogni mese relativo all'ultimo anno trascorso.
+     */
+    public LinkedList<Pair> getLastStat(String username){
+        /*
+        PER DONATO
+        Tu mi chiederai: perchè non hai usato un hashmap mese - numero click?
+        Perchè l'hashmap non ritorna i mesi nel loro ordine, bensì li ritorna in base a dove la funzione di hash li ha assegnati.
+        Ho usato questo artificio. Se non ti va bene o hai idee migliori dimmelo che devo modificare di conseguenza anche il comportamento del server
+         */
+        LinkedList<Pair> result = new LinkedList<Pair>();
+
+        //metto qualche dato di prova per vedere se le cose funzinoano
+        Pair pair;
+        pair = new Pair("gennaio", 10);
+        result.add(pair);
+        pair = new Pair("febbraio", 20);
+        result.add(pair);
+        pair = new Pair("marzo", 40);
+        result.add(pair);
+        pair = new Pair("aprile", 100);
+        result.add(pair);
+        pair = new Pair("maggio", 500);
+        result.add(pair);
+        pair = new Pair("giugno", 2000);
+        result.add(pair);
+        pair = new Pair("luglio", 5000);
+        result.add(pair);
+        pair = new Pair("agosto", 2300);
+        result.add(pair);
+        pair = new Pair("settembre", 1100);
+        result.add(pair);
+        pair = new Pair("ottobre", 850);
+        result.add(pair);
+        pair = new Pair("novembre", 1800);
+        result.add(pair);
+        pair = new Pair("dicembre", 1000);
+        result.add(pair);
+
+        return result;
     }
 
 }

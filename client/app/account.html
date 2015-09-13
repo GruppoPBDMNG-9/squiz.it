@@ -16,6 +16,7 @@
     <script src="scripts/app.js"></script>
     <script src="scripts/controllers/shortenCtrl.js"></script>
     <script src="scripts/controllers/userCtrl.js"></script>
+    <script src="scripts/controllers/statCtrl.js"></script>
     <script src="scripts/chart/Chart.js"></script>
     <script src="scripts/chart/angular-chart.js"></script>
 
@@ -68,8 +69,6 @@
     </div>
 </div>
 
-<chart value="myChart"></chart>
-
 <!--STATISTICHE-->
 <div class="container">
     <h3 class="sub-header">GLOBAL STAT</h3>
@@ -77,6 +76,11 @@
         <li>Total shorteners: {{totalShorteners}}</li>
         <li>Total click: {{totalClick}}</li>
     </ul>
+
+    <canvas id="line" class="chart chart-line" chart-data="dataTime"
+            chart-labels="labelsTime" chart-legend="false" chart-series="seriesTime"
+            chart-click="onClick" >
+    </canvas>
 
     <h3 class="sub-header">HISTORY</h3>
     <div class="table-responsive">
@@ -131,9 +135,6 @@
             </div>
         </div>
 
-        <canvas id="doughnut" class="chart chart-doughnut" chart-data="data" chart-labels="labels"></canvas>
-
-
         <div class="countryStat">
             <div class="table-responsive">
                 <table class="table table-striped">
@@ -154,7 +155,7 @@
     </div>
 </div>
 
-
+<canvas id="doughnut" class="chart chart-doughnut" chart-data="data" chart-labels="labels"></canvas>
 
 <div class="container">
     <footer>
