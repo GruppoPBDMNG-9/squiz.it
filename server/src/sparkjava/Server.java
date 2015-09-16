@@ -119,14 +119,14 @@ public class Server {
                 boolean validPassword = fsc.check();
 
                 if(!validUsername || !validPassword){
-                    result = Args.SINGIN_ERROR;
+                    result = Args.ERROR;
                 } else {
                     RedisDAO dao = new RedisDAO();
                     if(dao.login(username, password)){
                         result = Args.OKAY;
                         json.put(Args.USERNAME, username);
                     } else {
-                        result = Args.LOGIN_ERROR;
+                        result = Args.ERROR;
                     }
                 }
 
@@ -136,6 +136,7 @@ public class Server {
             }
 
             setResponseHeader(request, response);
+            System.out.println(json.toString());
             return json;
         });
 
