@@ -1,71 +1,269 @@
 package dao;
 
-import redis.clients.jedis.Jedis;
+
 import utility.CalendarUtility;
 import utility.Pair;
 import utility.StatisticRecord;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map.*;
 import java.util.LinkedList;
+import java.util.List;
 
-public class RedisDAO extends DAO {
-    private static final String host="127.0.0.1";
-    private static final int port= 6379;
-    private static Jedis jedis;
-    static RedisDAO redis = new RedisDAO();
+import redis.clients.jedis.Jedis;
+import utility.StatisticsIndex;
 
-/*
-    public RedisDAO(){
-        jedis=redis.openConnection(host, port);
-    }
 
+public class RedisDAO  {
+    /*
+    tale stringa memorizza il nome
+    della chiave che identifica
+    la lista nel database che memorizza
+    tutti gli url short creati
+     */
+    private final String shortsURL="shortsURL";
+
+    /*
+    tale stringa memorizza il nome
+    della chiave che identifica la
+    struttura dati hashmap nel database che memorizza
+    tutti gli utenti con le rispettive password
+     */
+    private final String USERS="users";
+
+
+    /*
+    tale stringa memorizza il nome
+    della chiave che identifica
+    la lista nel database
+    che ha il compito di memorizzare
+    le date dei click che riceve un singolo
+    short URL.
+    Il nome della chiave verrà completato
+    con il concatenamento ad essa
+    dello short URL
+     */
+    private final String listDa_Click="listDataClicks-";
+
+
+
+    /*
+    tale stringa memorizza il nome della chiave
+    che identifica la struttura dati HashMap
+    nel database che memorizza per uno specifico
+    short URL il numero di clicks che esso riceve
+    suddivisi per continenti.
+    il nome verrà completato con il concatenameto
+    dello specifico URL
+     */
+    private final String hashMContinent="mapContinent-";
+
+
+
+    /*
+    tale stringa memorizza il nome della chiave
+    che identifica la struttura dati HashMap
+    nel database che memorizza per uno specifico
+    short URL il numero di clicks che esso riceve
+    suddivisi per nazioni relative
+    ad uno specifico continente.
+    il nome verrà completato con il concatenameto
+    dello specifico continente e dello specifico URL
+     */
+    private final String hashMCountry="mapCountry-";
+
+
+    /*
+    tale stringa memorizza il nome
+    del campo che memorizza il long URL
+    associato ad uno specifico short URL
+    tale campo fa parte di una struttura dati record
+    ogni record fa riferimento ad uno specifico
+    short URL e nel database
+    la chiave che identifica ogni record
+    prenderà il nome dello short URL a cui esso
+    si riferisce
+     */
+    private final String recordLong="longURL";
+
+
+    /*
+    tale stringa memorizza il nome
+    del campo che memorizza
+    la data di creazione
+    di uno specifico short URL
+    tale campo fa parte di una struttura dati record
+    ogni record fa riferimento ad uno specifico
+    short URL e nel database
+    la chiave che identifica ogni record
+    prenderà il nome dello short URL a cui esso
+    si riferisce
+    */
+    private final String recordData="creationData";
+
+    /*
+    tale stringa memorizza il nome
+    del campo che memorizza l'username
+    dell'utente che ha creato
+    il specifico short URL
+    tale campo fa parte di una struttura dati record
+    ogni record fa riferimento ad uno specifico
+    short URL e nel database
+    la chiave che identifica ogni record
+    prenderà il nome dello short URL a cui esso
+    si riferisce
+    */
+    private final String recordUser="username";
+
+    /*
+    tale stringa memorizza il nome
+    della chiave che indentifica la lista
+    che memorizza nel database
+    tutti gli shors-URL creati
+    da uno specifico utente
+    Il nome della chiave verrà completato
+    con il concatenamento ad essa
+    dello specifico utente
+     */
+    private final String userShorts="shorts-";
 
 
 
     public static void main(String[] args){
-        jedis=redis.openConnection(host, port);
-        ArrayList<HashMap<String, HashMap<String, Object>>> lprova = new ArrayList<HashMap<String, HashMap<String, Object>>>();
-        HashMap<String, HashMap<String, Object>> map1 = new HashMap<String, HashMap<String, Object>>();
-        HashMap<String, Object> map2 = new HashMap<String, Object>();
-        HashMap<String, Object> click = new HashMap<String, Object>();
-        HashMap<String, Object> inclick1 = new HashMap<String, Object>();
-        HashMap<String, Object> inclick2 = new HashMap<String, Object>();
+
+        RedisDAO rd= new RedisDAO();
+
+        /*
+        rd.saveNewUser("donato91","0000");
+        rd.saveNewUser("peppo91","peppoGay");
+        rd.saveNewUser("corrado91","marina");
 
 
-        inclick1.put("Inclick11", "Inclick11");
-        inclick1.put("Inclick12", "Inclick12");
-        inclick2.put("Inclick21", "Inclick21");
-        inclick2.put("Inclick22", "Inclick22");
-        click.put("Click1", inclick1);
-        click.put("Click2", inclick2);
+        System.out.println("username donato91 disponibile= " + rd.checkUsernameAvailability("donato91"));
+        System.out.println("username matteo disponibile= " + rd.checkUsernameAvailability("matteo"));
+        System.out.println("username wanda disponibile= " + rd.checkUsernameAvailability("wanda"));
+        System.out.println("username corrado91 disponibile= " + rd.checkUsernameAvailability("corrado91"));
+        System.out.println("username peppo91 disponibile= " + rd.checkUsernameAvailability("peppo91"));
 
-        System.out.println(click.toString());
 
-        HashMap<String, Object> users = new HashMap<String, Object>();
-        users.put("Nome", "Corrado");
-        users.put("Cognome", "Giancaspro");
-        users.put("Clicks", click);
+        System.out.println("login1= " + rd.login("donato91", "0000"));
+        System.out.println("login2= " + rd.login("donato91", "1"));
+        System.out.println("login3= "+rd.login("checco", "0000"));
+        System.out.println("login4= "+rd.login("peppo91", "0000"));
+        System.out.println("login5= "+rd.login("peppo91", "peppoGay"));
 
-        HashMap<String, String> fusers = new HashMap<String, String>();
-        for(Object o : users.entrySet()){
-            Entry<String, Object> coppia = (Entry<String, Object>) o;
-            fusers.put(coppia.getKey(), coppia.getValue().toString());
+
+
+        rd.saveUrl("www.sportmediaset.mediaset.it", "short1", "donato91");
+        rd.saveUrl("www.google.com", "short2", "donato91");
+        rd.saveUrl("www.diretta.it", "short3", "peppo91");
+
+
+        System.out.println(rd.findLongUrl("short1"));
+        System.out.println(rd.findLongUrl("io"));
+        System.out.println(rd.findLongUrl("tu"));
+        System.out.println(rd.findLongUrl("egli"));
+        System.out.println(rd.findLongUrl("noi"));
+        System.out.println(rd.findLongUrl("short2"));
+        System.out.println(rd.findLongUrl("short3"));
+
+
+
+        rd.addClick("short2","europa","italia","15/09/2015");
+        rd.addClick("short2","europa","italia","15/09/2015");
+        rd.addClick("short2","europa","italia","15/09/2015");
+        rd.addClick("short2","asia","giappone","15/09/2015");
+        rd.addClick("short2","europa","italia","15/09/2015");
+        rd.addClick("short2","europa","francia","15/09/2015");
+        rd.addClick("short2","europa","italia","15/09/2015");
+        rd.addClick("short2","asia","giappone","15/09/2015");
+        rd.addClick("short2","europa","Germania","15/09/2015");
+        rd.addClick("short2","europa","Germania","15/09/2015");
+        rd.addClick("short2","asia","cina","15/09/2015");
+        rd.addClick("short1","asia","cina","15/09/2015");
+
+
+        HashMap<String,Integer> h= rd.getContinentClick("shorts2");
+        for (String s: h.keySet()){
+            System.out.println(s + " " + h.get(s));
         }
 
-        jedis.hmset("Utente 1", fusers);
+        HashMap<String,Integer> h2= rd.getCountryClick("shorts2", "europa");
+        for (String s: h2.keySet()){
+            System.out.println(s + " " + h2.get(s));
+        }
+
+        HashMap<String,Integer> h3= rd.getCountryClick("shorts2","asia");
+        for (String s: h3.keySet()){
+            System.out.println(s + " " + h3.get(s));
+        }
+
+        HashMap<String,Integer> h4= rd.getCountryClick("shorts2","america");
+        for (String s: h4.keySet()){
+            System.out.println(s + " " + h4.get(s));
+        }
 
 
+        HashMap<String,Object> s=rd.loadUserStat("donato91");
+        System.out.println("num link: " + s.get("totalShorteners"));
+        System.out.println("total click: " + s.get("totalClick"));
+        */
+
+        /*
+        rd.saveNewUser("donato91", "0");
+        rd.saveUrl("www.facebook.com", "short1", "donato91");
+        rd.saveUrl("www.diretta.com","short2","donato91");
+        rd.saveUrl("www.giovinazzoViva.com","short3","donato91");
+        rd.saveUrl("www.google.com", "short4", "donato91");
+
+        rd.addClick("short1","europa","italia","17/09/2015");
+        rd.addClick("short1","europa","italia","17/09/2015");
+        rd.addClick("short1","europa","italia","17/09/2015");
+        rd.addClick("short1","europa","germania","17/09/2015");
+        rd.addClick("short2","europa","italia","17/09/2015");
+        rd.addClick("short2","europa","italia","17/09/2015");
+
+        */
+
+        rd.addClick("short1","europa","italia","17/02/2014");
+        rd.addClick("short1","europa","italia","17/03/2014");
+        rd.addClick("short1","europa","italia","17/10/2014");
+        rd.addClick("short1","europa","germania","17/12/2014");
+        rd.addClick("short2","europa","italia","17/01/2014");
+        rd.addClick("short2","europa","italia","17/09/2014");
+       LinkedList<Pair> listStat= rd.getLastStat("donato91");
+        for (Pair p: listStat ){
+            System.out.println(p.getMonth() + " : " + p.getClick());
+        }
 
     }
-*/
 
+
+    /**
+     Controlla se la customizzazione scelta è disponibile
+     il metodo restituisce true se l'url short è disponibile
+     false altrimenti
+      */
     public boolean availableUrl(String url){
+
+        boolean result;
+
+        Jedis redis=RedisConnection.getIstance();
+        redis.connect();
         /*
-        Controlla nella supercolonna degli shortening se la customizzazione scelta è disponibile
+        con la seguente query recupero dal database la lista contenente
+        tutti gli short URL creati
          */
-        return true;
+        List<String> shortURL = redis.lrange(shortsURL,0,redis.llen(shortsURL));
+        if (shortURL.contains(url)){
+            result=false; //l'url è presente nella lista di quelli utilizzati quindi result=false
+        } else {
+            result=true; //l'url non è presente nella lista di quelli utilizzati quindi result=true
+        }
+
+        redis.close();
+
+        return result;
 
     }
 
@@ -81,15 +279,50 @@ public class RedisDAO extends DAO {
         final String UNDEFINED_USER = "---"; //se l'url va messo fra quelli anonimi arriva questo username
         final String data = new CalendarUtility().getCurrentData();
 
+        /*
+        tale variabile memorizza il nome della lista
+        in cui vengono salvati tutti gli short URL
+        creati dall'utente con tale username
+        alla prima parte uguale per tutte le liste
+        viene concatenato lo specifico username
+         */
+        final String structureList= userShorts+username;
+        Jedis redis=RedisConnection.getIstance();
+        redis.connect();
+
+        /*
+        per prima cosa mi memorizzo l'url short nella lista degli url creati
+         */
+        redis.lpush(shortsURL, shortUrl);
+
+        /*
+        adesso memorizzo le informazioni associate all'URL short creato
+        nel record ad esso appositamente associato
+         */
+        redis.hset(shortUrl,recordLong,longUrl);
+        redis.hset(shortUrl, recordData, data);
+
         if(username.equals(UNDEFINED_USER)){
-            //Inserisci l'url fra quelli anonimi
+            /*
+            lo short url è stato creato da un utente anonimo
+             */
+            redis.hset(shortUrl,recordUser,"UNDEFINED_USER");
         } else {
-            //Inserisci l'url associato all'utente
+            redis.hset(shortUrl,recordUser,username);
+            /*
+             a questo punto per ultimare l'operazione
+             aggiungo l'url short alla lista degli url
+             creati dall'utente
+         */
+            redis.lpush(structureList,shortUrl);
         }
 
 
+
+        redis.close();
+
         //Una stampa di prova per vedere se i dati giungono correttamente fin qui
-        System.out.println("longUrl = [" + longUrl + "], shortUrl = [" + shortUrl + "], username = [" + username + "]");
+       // System.out.println("longUrl = [" + longUrl + "], shortUrl = [" + shortUrl + "], username = [" + username + "]");
     }
 
     /*
@@ -97,7 +330,29 @@ public class RedisDAO extends DAO {
       Ritorna FALSE altrmenti
        */
     public boolean login(String username, String password){
-        return true;
+
+        HashMap<String,String> users;
+
+        Jedis redis=RedisConnection.getIstance();
+        redis.connect();
+        /*
+        con la seguente query recupero dal database
+        l'hashmap degli utenti registrati
+        per andare a verificare su essa
+        se l'username esiste e la pasword
+        coincide con quella associata a tale username
+         */
+        users= (HashMap<String,String>) redis.hgetAll(USERS);
+
+        redis.close();
+
+        if (users.containsKey(username)) {
+            String savedPassword=users.get(username);
+            if (password.equals(savedPassword)) return true;
+            else return false;
+        } else return false;
+
+
     }
 
     public HashMap<String, Object> loadUserStat(String username){
@@ -116,38 +371,102 @@ public class RedisDAO extends DAO {
         Vi voglio bene :)
         */
 
-        //Map di esempio
+        //Map da restituire
         HashMap<String, Object> result  = new HashMap<String, Object>();
 
-        //Due shortening di prova
-        ArrayList<String> args1 = new ArrayList<String>();
-        args1.add("30/08/2015");
-        args1.add("short1");
-        args1.add("long1");
-        args1.add("250");
-        StatisticRecord record1 = new StatisticRecord(args1);
+        /*
+        lista conententi i record
+        ogni record conterrà le statistiche di uno shortsURL
+        la lista verrà aggointa all'hashMap da restituire
+         */
+        LinkedList<StatisticRecord> statisticsList = new LinkedList<StatisticRecord>();
 
-        ArrayList<String> args2 = new ArrayList<String>();
-        args2.add("01/01/2000");
-        args2.add("short2");
-        args2.add("long2");
-        args2.add("136");
-        StatisticRecord record2 = new StatisticRecord(args2);
+        //memorizza il numero totale di clicks ottenuti dall'utente
+        int  totalClicks=0;
 
-        //Lista di statistiche
-        LinkedList<StatisticRecord> list = new LinkedList<StatisticRecord>();
-        list.add(record1);
-        list.add(record2);
+        /*
+        tale variabile memorizza il nome della lista
+        in cui vengono salvati tutti gli short URL
+        creati dall'utente con tale username
+        il nome viene completato
+        concatendando alla prima parte uguale per
+        tutte le liste, lo specifico username
+         */
+        final String structureList= userShorts+username;
 
-        int totalShortening = list.size();
-        int totalClicks = 0;
-        for(StatisticRecord record : list){
-            totalClicks += Integer.parseInt(record.getClick());
+        Jedis redis=RedisConnection.getIstance();
+        redis.connect();
+
+        /*
+        con questa query recuper dal database la lista
+        degli shorts url creati dallo specifico utente
+         */
+        List<String> shortsList=redis.lrange(structureList,0,redis.llen(structureList));
+
+        /*
+        ciclo sulla lista appena ottenuta per recuperare
+        da ciascun short url  tutte le sue informazioni
+         */
+        for (String sURL:shortsList){
+
+            /*
+            recupero il long url
+            la chiave su cui ricercare il record
+            prende il nome dello short url
+             */
+            String longURL= redis.hget(sURL,recordLong);
+
+            /*
+            recupero la data di creazione
+            la chiave su cui ricercare il record
+            prende il nome dello short url
+             */
+            String data= redis.hget(sURL,recordData);
+
+            /*
+            recupero il numero di click
+            totali ottenuti dallo short
+            facendomi restituire la lunghezza
+            della lista contenente le date
+            in cui lo shortURl ha ricevuto click
+             */
+            String listClick=listDa_Click+sURL;
+            String numClick=String.valueOf(redis.llen(listClick)).toString();
+
+            /*
+            aggiorno anche il numero di click totali
+             */
+            totalClicks=totalClicks+Integer.parseInt(numClick);
+
+            /*
+            incapsulo i dati in un arrayList
+             */
+            ArrayList<String> statistics= new ArrayList<String>();
+            statistics.add(StatisticsIndex.DATA,data);
+            statistics.add(StatisticsIndex.SHORT_URL,sURL);
+            statistics.add(StatisticsIndex.LONG_URL,longURL);
+            statistics.add(StatisticsIndex.CLICK,numClick);
+
+            /*
+            istanzio l'oogetto record di tipo SatisticsRecord
+            per memorizzare l'arrayList
+             */
+            StatisticRecord record = new StatisticRecord(statistics);
+
+            /*
+            aggiungo alla lista finale da restituire nell'hashMap
+            l'oggetto record appena istanziato
+             */
+            statisticsList.add(record);
+
         }
 
-        result.put("totalShorteners", totalShortening);
+        redis.close();
+
+
+        result.put("totalShorteners", statisticsList.size());
         result.put("totalClick" , totalClicks);
-        result.put("records", list);
+        result.put("records", statisticsList);
 
         return result;
     }
@@ -156,61 +475,253 @@ public class RedisDAO extends DAO {
     Used in SINGUP phase, and check the username availability
      */
     public boolean checkUsernameAvailability(String username){
-        return true;
+        HashMap<String,String> users;
+
+        Jedis redis=RedisConnection.getIstance();
+        redis.connect();
+        /*
+        con la seguente query recupero dal database
+        l'hashmap degli utenti registrati
+        per andare a verificare su essa
+        se l'username è stato già usato
+         */
+        users= (HashMap<String,String>) redis.hgetAll(USERS);
+
+        redis.close();
+
+        if (users.containsKey(username)) return false;
+        else return true;
     }
 
     /*
     Register a new user on out platform. Welcome on board!
      */
     public void saveNewUser(String username, String password){
+        HashMap<String,String> users;
 
+        Jedis redis=RedisConnection.getIstance();
+        redis.connect();
+
+        /*
+        con la seguente query recupero dal database
+        l'hashmap degli utenti registrati
+        per andare ad aggiungervi il nuovo utente
+         */
+
+        users= (HashMap<String,String>) redis.hgetAll(USERS);
+        users.put(username,password);
+
+        /*
+        con la seguente query inserisco nel database
+        l'hashMap degli utenti aggiornato
+        con il nuovo iscritto
+         */
+        redis.hmset(USERS,users);
+
+        redis.close();
     }
 
-    /*
-    Si cerca nel db se esiste uno short url associato a quello specificato
 
-    Se non esiste, ritornare direttamente la variabile come stringa vuota SENZA SOLLEVARE ECCEZIONI.
-    Se non esiste lo shortUrl corrispondente lo capisco dal fatto che la stringa ritornata è vuota, quindi lo gestisco direttamente nel server,
-    questo metodo deve ritornare o una stringa piena (se esiste lo shortUrl) o una stringa vuota, e basta. Vi amo.
+    /*
+    Restituisce il long URL associato allo
+    short URL passato come parametro
+    se lo short URL non è stato mai creato
+    il metodo restituisce la stringa vuota
      */
     public String findLongUrl(String shortUrl){
-        String longUrl = ""; //variabile da ritornare
-        longUrl = "http://google.it"; //fare query al db, se esiste la corrispondenza assegnarla. Ho messo google come prova
-        return longUrl; //ritornare la variabile
+        Jedis redis=RedisConnection.getIstance();
+        redis.connect();
+
+        /*
+        con la seguente query recuper dal database
+        esattamente il valore del campo longUrl
+        associato al record avente come chiave
+        proprio lo short url da ricercare
+         */
+        String longUrl = redis.hget(shortUrl,recordLong);
+
+        redis.close();
+
+        if (longUrl==null) longUrl="";
+        return longUrl;
     }
 
    /*
-   Prendere i parametri e metterli nelle statistiche
+   il metodo ha il compito di memorizzare nel database
+   tutte le informazione riguardanti il click
     */
     public void addClick(String shortUrl, String continent, String country, String data){
+        /*
+        tale variabile memorizza il nome della lista
+        che contiene tutte le date dei click effettuati
+        al short URL specifico
+        la si ottiene concatenando alla prima parte
+        uguale per tutti, il nome dello specifico
+        short URL
+         */
+        String listClick=listDa_Click+shortUrl;
 
+        /*
+        tale variabile ha il compito di memorizzare il nome
+        della chiave che identifica l'hashMap
+        che memorizza il numero di click
+        associati allo specifico shortURL
+        suddivisi per continenti.
+        la si ottiene concatenando alla prima parte
+        uguale per tutti, il nome dello specifico
+        short URL
+         */
+        String mapContinent=hashMContinent+shortUrl;
+
+        /*
+        tale variabile ha il compito di memorizzare il nome
+        della chiave dell'hashMap
+        che memorizza il numero di click
+        associati allo specifico shortURL
+        suddivisi per nazioni di uno specifico continenti
+        la si ottiene concatenando alla prima parte
+        uguale per tutti, il nome dello specifico
+        continente e specifico short URL
+         */
+        String mapCountryContinent=hashMCountry+continent+"-"+shortUrl;
+
+        Jedis redis=RedisConnection.getIstance();
+        redis.connect();
+
+        /*
+        Aggiungo alla lista delle date dei click
+        dello short url la nuova data passata
+        come parametro
+         */
+        redis.lpush(listClick,data);
+
+        /*
+        recupero dal database l'hashMap dei
+        click per continenti
+         */
+        HashMap<String,String> mContinent=(HashMap<String,String>)redis.hgetAll(mapContinent);
+        /*
+        verifico se il continente da cui proviene il clik è già presente nell'hashMap
+         */
+        if (mContinent.containsKey(continent)) {
+            /*
+            il continente è già presente
+            quindi devo aggiornare il numero di click
+             */
+            int numClick=0;
+            try{
+                 numClick= Integer.parseInt(mContinent.get(continent));
+            } catch (Exception e){
+                System.out.println("errore di conversione, impossibile aggiornare il valore dei click sul continente "+ continent);
+            }
+            mContinent.remove(continent);
+            numClick++;
+            String click=String.valueOf(numClick).toString();
+            mContinent.put(continent,click);
+        } else {
+            /*
+            il continente non era ancora presente quindi mi basta
+            semplicemente aggiungerlo come nuova chiave all'interno
+            dell'hash map
+             */
+            mContinent.put(continent,"1");
+        }
+        /*
+        a questo punto elimino dal database il vecchio hashMap per inserire quello aggiornato
+         */
+        redis.del(mapContinent);
+        redis.hmset(mapContinent,mContinent);
+
+
+        /*
+        recupero dal database l'hashMap dei click
+        suddivisi per nazioni di uno specifico continente
+         */
+        HashMap<String,String> mCountry= (HashMap<String,String>)redis.hgetAll(mapCountryContinent);
+
+        /*
+        utilizzo lo stesso metodo
+        utilizzato in precedenza per i continenti
+         */
+        if (mCountry.containsKey(country)){
+            int numClickCountry=0;
+            try{
+                numClickCountry=Integer.parseInt(mCountry.get(country));
+            } catch (Exception e){
+                System.out.println("errore di conversione, impossibile aggiornare il numero di click per lo stato "+country);
+            }
+            numClickCountry++;
+            mCountry.remove(country);
+            String nCCountry=String.valueOf(numClickCountry).toString();
+            mCountry.put(country,nCCountry);
+        } else {
+            mCountry.put(country,"1");
+        }
+
+        redis.del(mapCountryContinent);
+        redis.hmset(mapCountryContinent,mCountry);
+        redis.close();
     }
 
     /*
-    Richiede tutti i click suddivisi per continenti associati ad uno shortUrl
-     */
+     Restituisce un hashMap<String,Integer> che associa
+     il numero di click ricevuti dallo shortURL specifico
+     divisi per continenti
+      */
     public HashMap<String, Integer> getContinentClick(String shortUrl){
         HashMap<String, Integer> continentResult = new HashMap<String, Integer>();
 
-        //inizializzare e ritornare questo hashmap. per ora metto un hashmap di prova
-        continentResult.put("Europe",20);
-        continentResult.put("Asia", 10);
+        String mapContinent=hashMContinent+shortUrl;
+
+        Jedis redis=RedisConnection.getIstance();
+        redis.connect();
+
+        /*
+        con la seguente query recupero dal database
+        l'hashMap contentente il numero di click
+        ricevuti dallo shortURl suddivisi per continenti
+         */
+        HashMap<String,String> mCont= (HashMap<String,String>) redis.hgetAll(mapContinent);
+        redis.close();
+
+        /*
+        devo convertire il value dell'hashMap da string a int
+         */
+        for (String c: mCont.keySet()){
+            continentResult.put(c,Integer.parseInt(mCont.get(c)));
+        }
+
 
         return continentResult;
     }
 
     /*
-    Richiede tutti i click suddivisi per nazione di uno specifico continente associati ad uno specifico short url
-     */
+     Restituisce un hashMap<String,Integer> che associa
+     il numero di click ricevuti dallo shortURL specifico
+     divisi per nazioni appartenenti al continente specificato
+      */
     public HashMap<String, Integer> getCountryClick(String shortUrl, String continent){
         HashMap<String, Integer> countriesResult = new HashMap<String, Integer>();
 
-        //stessa cosa dei continenti, questa è giusto una prova
-        if(continent.equalsIgnoreCase("Europe")){
-            countriesResult.put("Italy",13);
-            countriesResult.put("Germany", 7);
-        } else {
-            countriesResult.put("Japan", 10);
+        String mapCountryContinent=hashMCountry+continent+"-"+shortUrl;
+
+        Jedis redis=RedisConnection.getIstance();
+        redis.connect();
+
+        /*
+        con la seguente query recupero dal database
+        l'hashMap contentente il numero di click
+        ricevuti dallo shortURl suddivisi per nazioni
+        appartenenti al continente specificato
+         */
+        HashMap<String,String> mCauntry = (HashMap<String,String>) redis.hgetAll(mapCountryContinent);
+        redis.close();
+
+         /*
+        devo convertire il value dell'hashMap da string a int
+         */
+        for (String c: mCauntry.keySet()){
+            countriesResult.put(c,Integer.parseInt(mCauntry.get(c)));
         }
 
         return countriesResult;
@@ -252,18 +763,107 @@ public class RedisDAO extends DAO {
     }
 
     /*
-    Prende calcola il numero di click per ogni mese relativo all'ultimo anno trascorso.
+    Restituisce il numero di click totali ottenuti dall'utente
+    per i suoi shorts
+    suddivisi in
      */
     public LinkedList<Pair> getLastStat(String username){
+
+        Jedis redis=RedisConnection.getIstance();
+        redis.connect();
+
         /*
-        PER DONATO
-        Tu mi chiederai: perchè non hai usato un hashmap mese - numero click?
-        Perchè l'hashmap non ritorna i mesi nel loro ordine, bensì li ritorna in base a dove la funzione di hash li ha assegnati.
-        Ho usato questo artificio. Se non ti va bene o hai idee migliori dimmelo che devo modificare di conseguenza anche il comportamento del server
+        linkedlist da restituire
          */
         LinkedList<Pair> result = new LinkedList<Pair>();
 
-        //metto qualche dato di prova per vedere se le cose funzinoano
+
+        /*
+        HashMap che associa il mese in formato numero
+        al corrispondente in formato testo
+         */
+        HashMap<Integer,String> calendar= CalendarUtility.getCalendar();
+
+        /*
+        data corrente sulla quale basarsi per le statistiche
+         */
+        String dataC = new CalendarUtility().getCurrentData();
+
+        /*
+        Slitto la data in modo da ottenere
+        un array di tre elementi
+        contenente giorno-mese-anno
+         */
+        String [] dataArray = dataC.split("/");
+
+        /*
+        mi memorizzo in fomrato int mese e anno
+         */
+
+        int currentMounth = Integer.parseInt(dataArray[1]);
+        int currentYear= Integer.parseInt(dataArray[2]);
+
+
+
+        /*
+        Valorizzo la lista da restituire
+         */
+        for (int i=currentMounth; i<=12; i++){
+            String year= String.valueOf(currentYear-1).toString();
+            Pair pair = new Pair(calendar.get(i)+"-"+year,0);
+            result.addLast(pair);
+        }
+
+        for (int i=1; i<=currentMounth; i++){
+            Pair pair= new Pair(calendar.get(i)+"-"+dataArray[2],0 );
+            result.addLast(pair);
+        }
+
+        /*
+        con la seguente query recupero
+        la lista degli short creati
+        dall'utente
+         */
+        String query=userShorts+username;
+        List<String> listURL = redis.lrange(query,0,redis.llen(query));
+
+        /*
+        a questo punto ciclo sulla lista
+        per aggiornare la statistica
+        elaborando ciascun short URL
+         */
+
+        for (String url:listURL){
+
+
+            /*
+            per il singolo short url
+            recupero la sua corrispondente
+            lista delle date dei click
+             */
+            String query2=listDa_Click+url;
+            List<String> listD= redis.lrange(query2,0,redis.llen(query2));
+
+            /*
+            ciclo sulle date
+             */
+            for (String d: listD) {
+
+                String dataAnalizeArray[]=d.split("/");
+                int monthAnalize= Integer.parseInt(dataAnalizeArray[1]);
+                String monthRicerca= calendar.get(monthAnalize)+"-"+dataAnalizeArray[2];
+
+
+                for (Pair p: result){
+                    if (p.getMonth().equals(monthRicerca)){
+                        p.setClick(p.getClick()+1);
+                        break;
+                    }
+                }
+            }
+        }
+
+        /*
         Pair pair;
         pair = new Pair("gennaio", 10);
         result.add(pair);
@@ -289,6 +889,8 @@ public class RedisDAO extends DAO {
         result.add(pair);
         pair = new Pair("dicembre", 1000);
         result.add(pair);
+        */
+        redis.close();
 
         return result;
     }

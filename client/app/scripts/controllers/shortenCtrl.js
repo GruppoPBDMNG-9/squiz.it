@@ -150,8 +150,6 @@ app.controller('shortenCtrl', function($scope, $http, $compile, $window, $locati
                             		var result = response.data.result;
                             		if(result == "error"){
                             			alert("Invalid username or password");
-                            		} else if (result == "singinError") {
-                                    	alert("Disallowerd username or password");
                             		} else {
                             			var username = response.data.username;
 
