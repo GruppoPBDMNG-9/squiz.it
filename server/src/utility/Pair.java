@@ -17,4 +17,7 @@ public class Pair {
         return this.click;
     }
 
+    public void setClick(int c) {
+        this.click=c;
+    }
 }

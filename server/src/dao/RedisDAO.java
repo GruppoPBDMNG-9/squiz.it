@@ -137,7 +137,7 @@ public class RedisDAO  {
         rd.saveNewUser("donato91","0000");
         rd.saveNewUser("peppo91","peppoGay");
         rd.saveNewUser("corrado91","marina");
-*/
+
 
         System.out.println("username donato91 disponibile= " + rd.checkUsernameAvailability("donato91"));
         System.out.println("username matteo disponibile= " + rd.checkUsernameAvailability("matteo"));
@@ -153,11 +153,11 @@ public class RedisDAO  {
         System.out.println("login5= "+rd.login("peppo91", "peppoGay"));
 
 
-        /*
+
         rd.saveUrl("www.sportmediaset.mediaset.it", "short1", "donato91");
         rd.saveUrl("www.google.com", "short2", "donato91");
         rd.saveUrl("www.diretta.it", "short3", "peppo91");
-*/
+
 
         System.out.println(rd.findLongUrl("short1"));
         System.out.println(rd.findLongUrl("io"));
@@ -168,7 +168,7 @@ public class RedisDAO  {
         System.out.println(rd.findLongUrl("short3"));
 
 
-        /*
+
         rd.addClick("short2","europa","italia","15/09/2015");
         rd.addClick("short2","europa","italia","15/09/2015");
         rd.addClick("short2","europa","italia","15/09/2015");
@@ -181,7 +181,7 @@ public class RedisDAO  {
         rd.addClick("short2","europa","Germania","15/09/2015");
         rd.addClick("short2","asia","cina","15/09/2015");
         rd.addClick("short1","asia","cina","15/09/2015");
-*/
+
 
         HashMap<String,Integer> h= rd.getContinentClick("shorts2");
         for (String s: h.keySet()){
@@ -207,8 +207,35 @@ public class RedisDAO  {
         HashMap<String,Object> s=rd.loadUserStat("donato91");
         System.out.println("num link: " + s.get("totalShorteners"));
         System.out.println("total click: " + s.get("totalClick"));
+        */
 
-        rd.getLastStat("donato91");
+        /*
+        rd.saveNewUser("donato91", "0");
+        rd.saveUrl("www.facebook.com", "short1", "donato91");
+        rd.saveUrl("www.diretta.com","short2","donato91");
+        rd.saveUrl("www.giovinazzoViva.com","short3","donato91");
+        rd.saveUrl("www.google.com", "short4", "donato91");
+
+        rd.addClick("short1","europa","italia","17/09/2015");
+        rd.addClick("short1","europa","italia","17/09/2015");
+        rd.addClick("short1","europa","italia","17/09/2015");
+        rd.addClick("short1","europa","germania","17/09/2015");
+        rd.addClick("short2","europa","italia","17/09/2015");
+        rd.addClick("short2","europa","italia","17/09/2015");
+
+        */
+
+        rd.addClick("short1","europa","italia","17/02/2014");
+        rd.addClick("short1","europa","italia","17/03/2014");
+        rd.addClick("short1","europa","italia","17/10/2014");
+        rd.addClick("short1","europa","germania","17/12/2014");
+        rd.addClick("short2","europa","italia","17/01/2014");
+        rd.addClick("short2","europa","italia","17/09/2014");
+       LinkedList<Pair> listStat= rd.getLastStat("donato91");
+        for (Pair p: listStat ){
+            System.out.println(p.getMonth() + " : " + p.getClick());
+        }
+
     }
 
 
@@ -742,58 +769,101 @@ public class RedisDAO  {
      */
     public LinkedList<Pair> getLastStat(String username){
 
-        Jedis redis= RedisConnection.getIstance();
+        Jedis redis=RedisConnection.getIstance();
         redis.connect();
-        /*
-        data di riferimento già splittata in un array
-         */
-        final String[] currentData = new CalendarUtility().getCurrentData().split("/");
-        int currentYear= Integer.parseInt(currentData[2]);
-        int currentMonth=Integer.parseInt(currentData[1]);
 
         /*
-        con la seguente query recupero dal database
-        la lista di tutti gli shorts URL creati
-        dall'utente.
-        la chiave identificativa della lista
-        è data dalla prima parte uguale concatenata
-        all'username dell'utente
+        linkedlist da restituire
          */
-        String listURLQuery=userShorts+username;
-        List<String> listURL = redis.lrange(listURLQuery,0,redis.llen(listURLQuery));
-
-        /*
-        ciclo su ciascun shortURL
-        per poter poi calcolare
-        per ciascuno di esso il numero di click
-        suddivisi per mesi
-         */
-        for (String shortURL: listURL){
-
-
-            /*
-            per lo specifico shortURL
-            con la seguente query mi faccio
-            restituire la lista contenente
-            le date nelle quali sono
-            stati effettuati i click.
-            la chiave identificativa della lista
-            è data dalla prima parte uguale concatenata
-            proprio allo specifico shortURL
-             */
-            String listDataQuery=listDa_Click+shortURL;
-            List<String> listData= redis.lrange(listDataQuery,0,redis.llen(listDataQuery));
-
-            for (String d: listData){
-
-            }
-
-        }
-
         LinkedList<Pair> result = new LinkedList<Pair>();
 
 
-        //metto qualche dato di prova per vedere se le cose funzinoano
+        /*
+        HashMap che associa il mese in formato numero
+        al corrispondente in formato testo
+         */
+        HashMap<Integer,String> calendar= CalendarUtility.getCalendar();
+
+        /*
+        data corrente sulla quale basarsi per le statistiche
+         */
+        String dataC = new CalendarUtility().getCurrentData();
+
+        /*
+        Slitto la data in modo da ottenere
+        un array di tre elementi
+        contenente giorno-mese-anno
+         */
+        String [] dataArray = dataC.split("/");
+
+        /*
+        mi memorizzo in fomrato int mese e anno
+         */
+
+        int currentMounth = Integer.parseInt(dataArray[1]);
+        int currentYear= Integer.parseInt(dataArray[2]);
+
+
+
+        /*
+        Valorizzo la lista da restituire
+         */
+        for (int i=currentMounth; i<=12; i++){
+            String year= String.valueOf(currentYear-1).toString();
+            Pair pair = new Pair(calendar.get(i)+"-"+year,0);
+            result.addLast(pair);
+        }
+
+        for (int i=1; i<=currentMounth; i++){
+            Pair pair= new Pair(calendar.get(i)+"-"+dataArray[2],0 );
+            result.addLast(pair);
+        }
+
+        /*
+        con la seguente query recupero
+        la lista degli short creati
+        dall'utente
+         */
+        String query=userShorts+username;
+        List<String> listURL = redis.lrange(query,0,redis.llen(query));
+
+        /*
+        a questo punto ciclo sulla lista
+        per aggiornare la statistica
+        elaborando ciascun short URL
+         */
+
+        for (String url:listURL){
+
+
+            /*
+            per il singolo short url
+            recupero la sua corrispondente
+            lista delle date dei click
+             */
+            String query2=listDa_Click+url;
+            List<String> listD= redis.lrange(query2,0,redis.llen(query2));
+
+            /*
+            ciclo sulle date
+             */
+            for (String d: listD) {
+
+                String dataAnalizeArray[]=d.split("/");
+                int monthAnalize= Integer.parseInt(dataAnalizeArray[1]);
+                String monthRicerca= calendar.get(monthAnalize)+"-"+dataAnalizeArray[2];
+
+
+                for (Pair p: result){
+                    if (p.getMonth().equals(monthRicerca)){
+                        p.setClick(p.getClick()+1);
+                        break;
+                    }
+                }
+            }
+        }
+
+        /*
         Pair pair;
         pair = new Pair("gennaio", 10);
         result.add(pair);
@@ -819,8 +889,9 @@ public class RedisDAO  {
         result.add(pair);
         pair = new Pair("dicembre", 1000);
         result.add(pair);
-
+        */
         redis.close();
+
         return result;
     }
 
