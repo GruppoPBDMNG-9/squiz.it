@@ -7,6 +7,7 @@ import utility.StatisticRecord;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map.*;
 import java.util.LinkedList;
 
 public class RedisDAO extends DAO {
@@ -15,7 +16,7 @@ public class RedisDAO extends DAO {
     private static Jedis jedis;
     static RedisDAO redis = new RedisDAO();
 
-    /*
+/*
     public RedisDAO(){
         jedis=redis.openConnection(host, port);
     }
@@ -24,6 +25,7 @@ public class RedisDAO extends DAO {
 
 
     public static void main(String[] args){
+        jedis=redis.openConnection(host, port);
         ArrayList<HashMap<String, HashMap<String, Object>>> lprova = new ArrayList<HashMap<String, HashMap<String, Object>>>();
         HashMap<String, HashMap<String, Object>> map1 = new HashMap<String, HashMap<String, Object>>();
         HashMap<String, Object> map2 = new HashMap<String, Object>();
@@ -57,7 +59,7 @@ public class RedisDAO extends DAO {
 
 
     }
-    */
+*/
 
     public boolean availableUrl(String url){
         /*
