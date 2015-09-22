@@ -1,31 +1,33 @@
 package dao;
 
 
+import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import utility.CalendarUtility;
 import utility.Pair;
 import utility.StatisticRecord;
+import utility.StatisticsIndex;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import redis.clients.jedis.Jedis;
-import utility.StatisticsIndex;
-
 
 public class RedisDAO  {
 
-    private Jedis redis = new JedisPool(new JedisPoolConfig(),"localhost").getResource();
+    private JedisPool jedisPool = new JedisPool(new JedisPoolConfig(),"localhost");
+    //private static final RedisDAO instance=new RedisDAO();
+    private static final RedisDAO instance = null;
 
-    private static final RedisDAO instance=new RedisDAO();
-    private RedisDAO(){
+    private RedisDAO(){}
 
-    }
     public static RedisDAO getInstance(){
-        return instance;
+        if(instance == null)
+            return new RedisDAO();
+        else
+            return instance;
     }
 
 
@@ -143,7 +145,7 @@ public class RedisDAO  {
 
 
 
-    public static void main(String[] args){
+    /*public static void main(String[] args){
 
         RedisDAO rd= new RedisDAO();
 
@@ -245,13 +247,14 @@ public class RedisDAO  {
         rd.addClick("short1","europa","germania","17/12/2014");
         rd.addClick("short2","europa","italia","17/01/2014");
         rd.addClick("short2","europa","italia","17/09/2014");
-        */
+
         LinkedList<Pair> listStat= rd.getLastStat("donato91","10/12/2015");
         for (Pair p: listStat ){
             System.out.println(p.getMonth() + " : " + p.getClick());
         }
 
     }
+*/
 
 
     /**
@@ -260,28 +263,27 @@ public class RedisDAO  {
      false altrimenti
       */
     public boolean availableUrl(String url){
-
         boolean result;
-
-
-      //  redis.connect();
-
+        //redis.connect();
 
         /*
         con la seguente query recupero dal database la lista contenente
         tutti gli short URL creati
          */
-        List<String> shortURL = redis.lrange(shortsURL,0,redis.llen(shortsURL));
-        if (shortURL.contains(url)){
-            result=false; //l'url è presente nella lista di quelli utilizzati quindi result=false
-        } else {
-            result=true; //l'url non è presente nella lista di quelli utilizzati quindi result=true
+        Jedis redis = jedisPool.getResource();
+        try {
+            List<String> shortURL = redis.lrange(shortsURL, 0, redis.llen(shortsURL));
+            if (shortURL.contains(url)) {
+                result = false; //l'url è presente nella lista di quelli utilizzati quindi result=false
+            } else {
+                result = true; //l'url non è presente nella lista di quelli utilizzati quindi result=true
+            }
+        } finally {
+            jedisPool.returnResource(redis);
         }
 
-//        redis.close();
-
+        //redis.close();
         return result;
-
     }
 
     /*
@@ -306,36 +308,37 @@ public class RedisDAO  {
         final String structureList= userShorts+username;
 
         //redis.connect();
+        Jedis redis = jedisPool.getResource();
+        try{
+            /*
+            per prima cosa mi memorizzo l'url short nella lista degli url creati
+            */
+            redis.lpush(shortsURL, shortUrl);
 
-        /*
-        per prima cosa mi memorizzo l'url short nella lista degli url creati
-         */
-        redis.lpush(shortsURL, shortUrl);
+            /*
+            adesso memorizzo le informazioni associate all'URL short creato
+            nel record ad esso appositamente associato
+            */
+            redis.hset(shortUrl, recordLong, longUrl);
+            redis.hset(shortUrl, recordData, data);
 
-        /*
-        adesso memorizzo le informazioni associate all'URL short creato
-        nel record ad esso appositamente associato
-         */
-        redis.hset(shortUrl,recordLong,longUrl);
-        redis.hset(shortUrl, recordData, data);
-
-        if(username.equals(UNDEFINED_USER)){
+            if (username.equals(UNDEFINED_USER)) {
             /*
             lo short url è stato creato da un utente anonimo
              */
-            redis.hset(shortUrl,recordUser,"UNDEFINED_USER");
-        } else {
-            redis.hset(shortUrl,recordUser,username);
+                redis.hset(shortUrl, recordUser, "UNDEFINED_USER");
+            } else {
+                redis.hset(shortUrl, recordUser, username);
             /*
              a questo punto per ultimare l'operazione
              aggiungo l'url short alla lista degli url
              creati dall'utente
          */
-            redis.lpush(structureList,shortUrl);
+                redis.lpush(structureList, shortUrl);
+            }
+        } finally {
+            jedisPool.returnResource(redis);
         }
-
-
-
 //        redis.close();
 
         //Una stampa di prova per vedere se i dati giungono correttamente fin qui
@@ -349,8 +352,6 @@ public class RedisDAO  {
     public boolean login(String username, String password){
 
         HashMap<String,String> users;
-
-
         //redis.connect();
         /*
         con la seguente query recupero dal database
@@ -359,17 +360,22 @@ public class RedisDAO  {
         se l'username esiste e la pasword
         coincide con quella associata a tale username
          */
-        users= (HashMap<String,String>) redis.hgetAll(USERS);
 
-    //    redis.close();
+        Jedis redis = jedisPool.getResource();
+        try{
+            users= (HashMap<String,String>) redis.hgetAll(USERS);
 
-        if (users.containsKey(username)) {
-            String savedPassword=users.get(username);
-            if (password.equals(savedPassword)) return true;
-            else return false;
-        } else return false;
-
-
+            if (users.containsKey(username)) {
+                String savedPassword=users.get(username);
+                if (password.equals(savedPassword)) return true;
+                else return false;
+            } else {
+                return false;
+            }
+        } finally {
+            jedisPool.returnResource(redis);
+        }
+        //redis.close();
     }
 
     public HashMap<String, Object> loadUserStat(String username){
@@ -413,32 +419,33 @@ public class RedisDAO  {
 
 
        // redis.connect();
-
-        /*
+        Jedis redis = jedisPool.getResource();
+        try{
+            /*
         con questa query recuper dal database la lista
         degli shorts url creati dallo specifico utente
          */
-        List<String> shortsList=redis.lrange(structureList,0,redis.llen(structureList));
+            List<String> shortsList=redis.lrange(structureList,0,redis.llen(structureList));
 
         /*
         ciclo sulla lista appena ottenuta per recuperare
         da ciascun short url  tutte le sue informazioni
          */
-        for (String sURL:shortsList){
+            for (String sURL:shortsList){
 
             /*
             recupero il long url
             la chiave su cui ricercare il record
             prende il nome dello short url
              */
-            String longURL= redis.hget(sURL,recordLong);
+                String longURL= redis.hget(sURL,recordLong);
 
             /*
             recupero la data di creazione
             la chiave su cui ricercare il record
             prende il nome dello short url
              */
-            String data= redis.hget(sURL,recordData);
+                String data= redis.hget(sURL,recordData);
 
             /*
             recupero il numero di click
@@ -447,44 +454,45 @@ public class RedisDAO  {
             della lista contenente le date
             in cui lo shortURl ha ricevuto click
              */
-            String listClick=listDa_Click+sURL;
-            String numClick=String.valueOf(redis.llen(listClick)).toString();
+                String listClick=listDa_Click+sURL;
+                String numClick=String.valueOf(redis.llen(listClick)).toString();
 
             /*
             aggiorno anche il numero di click totali
              */
-            totalClicks=totalClicks+Integer.parseInt(numClick);
+                totalClicks=totalClicks+Integer.parseInt(numClick);
 
             /*
             incapsulo i dati in un arrayList
              */
-            ArrayList<String> statistics= new ArrayList<String>();
-            statistics.add(StatisticsIndex.DATA,data);
-            statistics.add(StatisticsIndex.SHORT_URL,sURL);
-            statistics.add(StatisticsIndex.LONG_URL,longURL);
-            statistics.add(StatisticsIndex.CLICK,numClick);
+                ArrayList<String> statistics= new ArrayList<String>();
+                statistics.add(StatisticsIndex.DATA,data);
+                statistics.add(StatisticsIndex.SHORT_URL,sURL);
+                statistics.add(StatisticsIndex.LONG_URL,longURL);
+                statistics.add(StatisticsIndex.CLICK,numClick);
 
             /*
             istanzio l'oogetto record di tipo SatisticsRecord
             per memorizzare l'arrayList
              */
-            StatisticRecord record = new StatisticRecord(statistics);
+                StatisticRecord record = new StatisticRecord(statistics);
 
             /*
             aggiungo alla lista finale da restituire nell'hashMap
             l'oggetto record appena istanziato
              */
-            statisticsList.add(record);
+                statisticsList.add(record);
 
+            }
+
+
+            result.put("totalShorteners", statisticsList.size());
+            result.put("totalClick" , totalClicks);
+            result.put("records", statisticsList);
+        } finally {
+            jedisPool.returnResource(redis);
         }
-
-
-        result.put("totalShorteners", statisticsList.size());
-        result.put("totalClick" , totalClicks);
-        result.put("records", statisticsList);
-
         //redis.close();
-
         return result;
     }
 
@@ -496,18 +504,25 @@ public class RedisDAO  {
 
 
         //redis.connect();
-        /*
-        con la seguente query recupero dal database
-        l'hashmap degli utenti registrati
-        per andare a verificare su essa
-        se l'username è stato già usato
-         */
-        users= (HashMap<String,String>) redis.hgetAll(USERS);
+        Jedis redis = jedisPool.getResource();
+        try {
+            /*
+            con la seguente query recupero dal database
+            l'hashmap degli utenti registrati
+            per andare a verificare su essa
+            se l'username è stato già usato
+            */
+            users = (HashMap<String, String>) redis.hgetAll(USERS);
 
-       // redis.close();
-
-        if (users.containsKey(username)) return false;
-        else return true;
+            if (users.containsKey(username)) {
+                return false;
+            } else {
+                return true;
+            }
+        } finally {
+            jedisPool.returnResource(redis);
+        }
+        // redis.close();
     }
 
     /*
@@ -518,26 +533,27 @@ public class RedisDAO  {
 
 
         //redis.connect();
+        Jedis redis = jedisPool.getResource();
+        try{
+            /*
+            con la seguente query recupero dal database
+            l'hashmap degli utenti registrati
+            per andare ad aggiungervi il nuovo utente
+            */
+            users= (HashMap<String,String>) redis.hgetAll(USERS);
+            users.put(username,password);
 
-        /*
-        con la seguente query recupero dal database
-        l'hashmap degli utenti registrati
-        per andare ad aggiungervi il nuovo utente
-         */
-
-        users= (HashMap<String,String>) redis.hgetAll(USERS);
-        users.put(username,password);
-
-        /*
-        con la seguente query inserisco nel database
-        l'hashMap degli utenti aggiornato
-        con il nuovo iscritto
-         */
-        redis.hmset(USERS,users);
-
+            /*
+            con la seguente query inserisco nel database
+            l'hashMap degli utenti aggiornato
+            con il nuovo iscritto
+            */
+            redis.hmset(USERS,users);
+        } finally {
+            jedisPool.returnResource(redis);
+        }
         //redis.close();
     }
-
 
     /*
     Restituisce il long URL associato allo
@@ -547,20 +563,24 @@ public class RedisDAO  {
      */
     public String findLongUrl(String shortUrl){
 
-      //  redis.connect();
+        //redis.connect();
+        Jedis redis = jedisPool.getResource();
+        try{
+            /*
+            con la seguente query recuper dal database
+            esattamente il valore del campo longUrl
+            associato al record avente come chiave
+            proprio lo short url da ricercare
+            */
+            String longUrl = redis.hget(shortUrl,recordLong);
 
-        /*
-        con la seguente query recuper dal database
-        esattamente il valore del campo longUrl
-        associato al record avente come chiave
-        proprio lo short url da ricercare
-         */
-        String longUrl = redis.hget(shortUrl,recordLong);
+            //redis.close();
+            if (longUrl==null) longUrl="";
+            return longUrl;
 
-//        redis.close();
-
-        if (longUrl==null) longUrl="";
-        return longUrl;
+        } finally {
+            jedisPool.returnResource(redis);
+        }
     }
 
    /*
@@ -604,79 +624,83 @@ public class RedisDAO  {
 
 
        // redis.connect();
-
-        /*
-        Aggiungo alla lista delle date dei click
-        dello short url la nuova data passata
-        come parametro
-         */
-        redis.lpush(listClick,data);
-
-        /*
-        recupero dal database l'hashMap dei
-        click per continenti
-         */
-        HashMap<String,String> mContinent=(HashMap<String,String>)redis.hgetAll(mapContinent);
-        /*
-        verifico se il continente da cui proviene il clik è già presente nell'hashMap
-         */
-        if (mContinent.containsKey(continent)) {
+        Jedis redis = jedisPool.getResource();
+        try{
             /*
-            il continente è già presente
-            quindi devo aggiornare il numero di click
-             */
-            int numClick=0;
-            try{
-                 numClick= Integer.parseInt(mContinent.get(continent));
-            } catch (Exception e){
-                System.out.println("errore di conversione, impossibile aggiornare il valore dei click sul continente "+ continent);
-            }
-            mContinent.remove(continent);
-            numClick++;
-            String click=String.valueOf(numClick).toString();
-            mContinent.put(continent,click);
-        } else {
+            Aggiungo alla lista delle date dei click
+            dello short url la nuova data passata
+            come parametro
+            */
+            redis.lpush(listClick,data);
+
             /*
-            il continente non era ancora presente quindi mi basta
-            semplicemente aggiungerlo come nuova chiave all'interno
-            dell'hash map
+            recupero dal database l'hashMap dei
+            click per continenti
              */
-            mContinent.put(continent,"1");
-        }
-        /*
-        a questo punto elimino dal database il vecchio hashMap per inserire quello aggiornato
-         */
-        redis.del(mapContinent);
-        redis.hmset(mapContinent,mContinent);
-
-
-        /*
-        recupero dal database l'hashMap dei click
-        suddivisi per nazioni di uno specifico continente
-         */
-        HashMap<String,String> mCountry= (HashMap<String,String>)redis.hgetAll(mapCountryContinent);
-
-        /*
-        utilizzo lo stesso metodo
-        utilizzato in precedenza per i continenti
-         */
-        if (mCountry.containsKey(country)){
-            int numClickCountry=0;
-            try{
-                numClickCountry=Integer.parseInt(mCountry.get(country));
-            } catch (Exception e){
-                System.out.println("errore di conversione, impossibile aggiornare il numero di click per lo stato "+country);
+            HashMap<String,String> mContinent=(HashMap<String,String>)redis.hgetAll(mapContinent);
+            /*
+            verifico se il continente da cui proviene il clik è già presente nell'hashMap
+             */
+            if (mContinent.containsKey(continent)) {
+                /*
+                il continente è già presente
+                quindi devo aggiornare il numero di click
+                 */
+                int numClick=0;
+                try{
+                    numClick= Integer.parseInt(mContinent.get(continent));
+                } catch (Exception e){
+                    System.out.println("errore di conversione, impossibile aggiornare il valore dei click sul continente "+ continent);
+                }
+                mContinent.remove(continent);
+                numClick++;
+                String click=String.valueOf(numClick).toString();
+                mContinent.put(continent,click);
+            } else {
+                /*
+                il continente non era ancora presente quindi mi basta
+                semplicemente aggiungerlo come nuova chiave all'interno
+                dell'hash map
+                 */
+                mContinent.put(continent,"1");
             }
-            numClickCountry++;
-            mCountry.remove(country);
-            String nCCountry=String.valueOf(numClickCountry).toString();
-            mCountry.put(country,nCCountry);
-        } else {
-            mCountry.put(country,"1");
+            /*
+            a questo punto elimino dal database il vecchio hashMap per inserire quello aggiornato
+             */
+            redis.del(mapContinent);
+            redis.hmset(mapContinent,mContinent);
+
+            /*
+            recupero dal database l'hashMap dei click
+            suddivisi per nazioni di uno specifico continente
+             */
+            HashMap<String,String> mCountry= (HashMap<String,String>)redis.hgetAll(mapCountryContinent);
+
+            /*
+            utilizzo lo stesso metodo
+            utilizzato in precedenza per i continenti
+             */
+            if (mCountry.containsKey(country)){
+                int numClickCountry=0;
+                try{
+                    numClickCountry=Integer.parseInt(mCountry.get(country));
+                } catch (Exception e){
+                    System.out.println("errore di conversione, impossibile aggiornare il numero di click per lo stato "+country);
+                }
+                numClickCountry++;
+                mCountry.remove(country);
+                String nCCountry=String.valueOf(numClickCountry).toString();
+                mCountry.put(country,nCCountry);
+            } else {
+                mCountry.put(country,"1");
+            }
+
+            redis.del(mapCountryContinent);
+            redis.hmset(mapCountryContinent,mCountry);
+        } finally {
+            jedisPool.returnResource(redis);
         }
 
-        redis.del(mapCountryContinent);
-        redis.hmset(mapCountryContinent,mCountry);
        // redis.close();
     }
 
@@ -687,25 +711,28 @@ public class RedisDAO  {
       */
     public HashMap<String, Integer> getContinentClick(String shortUrl){
         HashMap<String, Integer> continentResult = new HashMap<String, Integer>();
-
         String mapContinent=hashMContinent+shortUrl;
 
 
         //redis.connect();
+        Jedis redis = jedisPool.getResource();
+        try{
+             /*
+            con la seguente query recupero dal database
+            l'hashMap contentente il numero di click
+            ricevuti dallo shortURl suddivisi per continenti
+             */
+            HashMap<String,String> mCont= (HashMap<String,String>) redis.hgetAll(mapContinent);
 
-        /*
-        con la seguente query recupero dal database
-        l'hashMap contentente il numero di click
-        ricevuti dallo shortURl suddivisi per continenti
-         */
-        HashMap<String,String> mCont= (HashMap<String,String>) redis.hgetAll(mapContinent);
 
-
-        /*
-        devo convertire il value dell'hashMap da string a int
-         */
-        for (String c: mCont.keySet()){
-            continentResult.put(c,Integer.parseInt(mCont.get(c)));
+            /*
+            devo convertire il value dell'hashMap da string a int
+             */
+            for (String c: mCont.keySet()){
+                continentResult.put(c,Integer.parseInt(mCont.get(c)));
+            }
+        } finally {
+            jedisPool.returnResource(redis);
         }
 
        // redis.close();
@@ -719,65 +746,33 @@ public class RedisDAO  {
       */
     public HashMap<String, Integer> getCountryClick(String shortUrl, String continent){
         HashMap<String, Integer> countriesResult = new HashMap<String, Integer>();
-
         String mapCountryContinent=hashMCountry+continent+"-"+shortUrl;
 
 
        // redis.connect();
+        Jedis redis = jedisPool.getResource();
+        try{
+             /*
+            con la seguente query recupero dal database
+            l'hashMap contentente il numero di click
+            ricevuti dallo shortURl suddivisi per nazioni
+            appartenenti al continente specificato
+             */
+            HashMap<String,String> mCauntry = (HashMap<String,String>) redis.hgetAll(mapCountryContinent);
 
-        /*
-        con la seguente query recupero dal database
-        l'hashMap contentente il numero di click
-        ricevuti dallo shortURl suddivisi per nazioni
-        appartenenti al continente specificato
-         */
-        HashMap<String,String> mCauntry = (HashMap<String,String>) redis.hgetAll(mapCountryContinent);
 
-
-         /*
-        devo convertire il value dell'hashMap da string a int
-         */
-        for (String c: mCauntry.keySet()){
-            countriesResult.put(c,Integer.parseInt(mCauntry.get(c)));
+             /*
+            devo convertire il value dell'hashMap da string a int
+             */
+            for (String c: mCauntry.keySet()){
+                countriesResult.put(c,Integer.parseInt(mCauntry.get(c)));
+            }
+        } finally {
+            jedisPool.returnResource(redis);
         }
 
-      //  redis.close();
+        //redis.close();
         return countriesResult;
-    }
-
-    /*
-    Get all stats data from an username's shorteners
-     */
-    public LinkedList<LinkedList<String>> getData(String username){
-        LinkedList<LinkedList<String>> resultList = new LinkedList<LinkedList<String>>();
-
-        //oggetti per il testing del client
-        LinkedList<String> url1 = new LinkedList<String>();
-        url1.add("data1");
-        url1.add("short1");
-        url1.add("long1");
-        url1.add("click1");
-        url1.add("country1");
-
-        LinkedList<String> url2 = new LinkedList<String>();
-        url2.add("data2");
-        url2.add("short2");
-        url2.add("long2");
-        url2.add("click2");
-        url2.add("country2");
-
-        LinkedList<String> url3 = new LinkedList<String>();
-        url3.add("data3");
-        url3.add("short3");
-        url3.add("long3");
-        url3.add("click3");
-        url3.add("country3");
-
-        resultList.add(url1);
-        resultList.add(url2);
-        resultList.add(url3);
-
-        return resultList;
     }
 
     /*
@@ -786,8 +781,6 @@ public class RedisDAO  {
     suddivisi in
      */
     public LinkedList<Pair> getLastStat(String username,String dataC){
-
-
         //redis.connect();
 
         /*
@@ -839,42 +832,45 @@ public class RedisDAO  {
          */
         String query=userShorts+username;
 
-        List<String> listURL = redis.lrange(query,0,redis.llen(query));
-
-        /*
-        a questo punto ciclo sulla lista
-        per aggiornare la statistica
-        elaborando ciascun short URL
-         */
-
-        for (String url:listURL){
-
+        Jedis redis = jedisPool.getResource();
+        try{
+            List<String> listURL = redis.lrange(query,0,redis.llen(query));
 
             /*
-            per il singolo short url
-            recupero la sua corrispondente
-            lista delle date dei click
+            a questo punto ciclo sulla lista
+            per aggiornare la statistica
+            elaborando ciascun short URL
              */
-            String query2=listDa_Click+url;
-            List<String> listD= redis.lrange(query2,0,redis.llen(query2));
 
-            /*
-            ciclo sulle date
-             */
-            for (String d: listD) {
+            for (String url:listURL){
+                /*
+                per il singolo short url
+                recupero la sua corrispondente
+                lista delle date dei click
+                 */
+                String query2=listDa_Click+url;
+                List<String> listD= redis.lrange(query2,0,redis.llen(query2));
 
-                String dataAnalizeArray[]=d.split("/");
-                int monthAnalize= Integer.parseInt(dataAnalizeArray[1]);
-                String monthRicerca= calendar.get(monthAnalize)+"-"+dataAnalizeArray[2];
+                /*
+                ciclo sulle date
+                 */
+                for (String d: listD) {
+
+                    String dataAnalizeArray[]=d.split("/");
+                    int monthAnalize= Integer.parseInt(dataAnalizeArray[1]);
+                    String monthRicerca= calendar.get(monthAnalize)+"-"+dataAnalizeArray[2];
 
 
-                for (Pair p: result){
-                    if (p.getMonth().equals(monthRicerca)){
-                        p.setClick(p.getClick()+1);
-                        break;
+                    for (Pair p: result){
+                        if (p.getMonth().equals(monthRicerca)){
+                            p.setClick(p.getClick()+1);
+                            break;
+                        }
                     }
                 }
             }
+        } finally {
+            jedisPool.returnResource(redis);
         }
 
         /*

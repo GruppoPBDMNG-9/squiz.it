@@ -14,7 +14,6 @@ import java.util.Map.Entry;
 
 import static spark.Spark.get;
 import static spark.Spark.options;
-import static spark.SparkBase.port;
 
 public class Server {
     static String lastUrl;
@@ -139,7 +138,6 @@ public class Server {
             }
 
             setResponseHeader(request, response);
-            System.out.println(json.toString());
             return json;
         });
 
