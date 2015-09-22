@@ -237,11 +237,7 @@ public class RedisDAO  {
         rd.addClick("short2","europa","italia","17/09/2015");
         rd.addClick("short2","europa","italia","17/09/2015");
 
-<<<<<<< HEAD
 
-=======
-        */
->>>>>>> 39dbef8f1cd80943cabb814c9005e5fa25afbdea
 
         rd.addClick("short1","europa","italia","17/02/2014");
         rd.addClick("short1","europa","italia","17/03/2014");
@@ -249,12 +245,8 @@ public class RedisDAO  {
         rd.addClick("short1","europa","germania","17/12/2014");
         rd.addClick("short2","europa","italia","17/01/2014");
         rd.addClick("short2","europa","italia","17/09/2014");
-<<<<<<< HEAD
         */
         LinkedList<Pair> listStat= rd.getLastStat("donato91","10/12/2015");
-=======
-       LinkedList<Pair> listStat= rd.getLastStat("donato91");
->>>>>>> 39dbef8f1cd80943cabb814c9005e5fa25afbdea
         for (Pair p: listStat ){
             System.out.println(p.getMonth() + " : " + p.getClick());
         }
@@ -798,12 +790,6 @@ public class RedisDAO  {
 
         //redis.connect();
 
-<<<<<<< HEAD
-=======
-        Jedis redis=RedisConnection.getIstance();
-        redis.connect();
-
->>>>>>> 39dbef8f1cd80943cabb814c9005e5fa25afbdea
         /*
         linkedlist da restituire
          */
@@ -815,7 +801,6 @@ public class RedisDAO  {
         al corrispondente in formato testo
          */
         HashMap<Integer,String> calendar= CalendarUtility.getCalendar();
-<<<<<<< HEAD
 
        /*
         Slitto la data in modo da ottenere
@@ -847,54 +832,13 @@ public class RedisDAO  {
             result.addLast(pair);
         }
 
-=======
-
-        /*
-        data corrente sulla quale basarsi per le statistiche
-         */
-        String dataC = new CalendarUtility().getCurrentData();
-
-        /*
-        Slitto la data in modo da ottenere
-        un array di tre elementi
-        contenente giorno-mese-anno
-         */
-        String [] dataArray = dataC.split("/");
-
-        /*
-        mi memorizzo in fomrato int mese e anno
-         */
-
-        int currentMounth = Integer.parseInt(dataArray[1]);
-        int currentYear= Integer.parseInt(dataArray[2]);
-
-
-
-        /*
-        Valorizzo la lista da restituire
-         */
-        for (int i=currentMounth; i<=12; i++){
-            String year= String.valueOf(currentYear-1).toString();
-            Pair pair = new Pair(calendar.get(i)+"-"+year,0);
-            result.addLast(pair);
-        }
-
-        for (int i=1; i<=currentMounth; i++){
-            Pair pair= new Pair(calendar.get(i)+"-"+dataArray[2],0 );
-            result.addLast(pair);
-        }
-
->>>>>>> 39dbef8f1cd80943cabb814c9005e5fa25afbdea
         /*
         con la seguente query recupero
         la lista degli short creati
         dall'utente
          */
         String query=userShorts+username;
-<<<<<<< HEAD
 
-=======
->>>>>>> 39dbef8f1cd80943cabb814c9005e5fa25afbdea
         List<String> listURL = redis.lrange(query,0,redis.llen(query));
 
         /*
@@ -913,7 +857,6 @@ public class RedisDAO  {
              */
             String query2=listDa_Click+url;
             List<String> listD= redis.lrange(query2,0,redis.llen(query2));
-<<<<<<< HEAD
 
             /*
             ciclo sulle date
@@ -934,28 +877,6 @@ public class RedisDAO  {
             }
         }
 
-=======
-
-            /*
-            ciclo sulle date
-             */
-            for (String d: listD) {
-
-                String dataAnalizeArray[]=d.split("/");
-                int monthAnalize= Integer.parseInt(dataAnalizeArray[1]);
-                String monthRicerca= calendar.get(monthAnalize)+"-"+dataAnalizeArray[2];
-
-
-                for (Pair p: result){
-                    if (p.getMonth().equals(monthRicerca)){
-                        p.setClick(p.getClick()+1);
-                        break;
-                    }
-                }
-            }
-        }
-
->>>>>>> 39dbef8f1cd80943cabb814c9005e5fa25afbdea
         /*
         Pair pair;
         pair = new Pair("gennaio", 10);
@@ -983,13 +904,9 @@ public class RedisDAO  {
         pair = new Pair("dicembre", 1000);
         result.add(pair);
         */
-<<<<<<< HEAD
 
 
        // redis.close();
-=======
-        redis.close();
->>>>>>> 39dbef8f1cd80943cabb814c9005e5fa25afbdea
 
         return result;
     }
