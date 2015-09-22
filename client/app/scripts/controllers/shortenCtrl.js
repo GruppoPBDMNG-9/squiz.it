@@ -46,7 +46,7 @@ app.controller('shortenCtrl', function($scope, $http, $compile, $window, $locati
         $scope.setMessages =
         		function(){
         			$scope.msg = "Your short url: ";
-        			$scope.domain = "http://squiz.it/";
+        			$scope.domain = "http://localhost:4567/";
         			$scope.customizeMsg = "Customize: ";
         		}
 
@@ -74,7 +74,7 @@ app.controller('shortenCtrl', function($scope, $http, $compile, $window, $locati
         			user = sessionStorage.username;
         		}
 
-        		return "http://localhost:4567/saveUrl?url=http://squiz.it/" + $scope.shortUrl
+        		return "http://localhost:4567/saveUrl?url=http://localhost:4567/" + $scope.shortUrl
                 										+ "&longUrl=" + $scope.longUrl
                 										+ "&username=" + user;
             }
@@ -94,6 +94,7 @@ app.controller('shortenCtrl', function($scope, $http, $compile, $window, $locati
         						var url = response.data.url;
         						prompt(msg, url);
         						$scope.reset();
+        						$window.location.reload();
         					} else if (result == "error") {
         						alert(msg);
         					}

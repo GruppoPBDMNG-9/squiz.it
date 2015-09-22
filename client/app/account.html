@@ -97,8 +97,8 @@
 
             <tr ng-repeat="record in records">
                 <td>{{record.data}}</td>
-                <td>{{record.shortUrl}}</td>
-                <td>{{record.longUrl}}</td>
+                <td><a href={{record.shortUrl}}>{{record.shortUrl}}</a></td>
+                <td><a href={{record.longUrl}}>{{record.longUrl}}</a></td>
                 <td>{{record.click}}</td>
                 <td>
                     <button type="submit" class="btn btn-success" ng-click="showContinentClick(record.shortUrl)">Details</button>

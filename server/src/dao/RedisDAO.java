@@ -296,7 +296,6 @@ public class RedisDAO  {
      */
     public void saveUrl(String longUrl, String shortUrl, String username,String data){
         final String UNDEFINED_USER = "---"; //se l'url va messo fra quelli anonimi arriva questo username
-        //final String data = new CalendarUtility().getCurrentData();
 
         /*
         tale variabile memorizza il nome della lista
@@ -485,7 +484,6 @@ public class RedisDAO  {
 
             }
 
-
             result.put("totalShorteners", statisticsList.size());
             result.put("totalClick" , totalClicks);
             result.put("records", statisticsList);
@@ -562,7 +560,7 @@ public class RedisDAO  {
     il metodo restituisce la stringa vuota
      */
     public String findLongUrl(String shortUrl){
-
+        String longUrl = "";
         //redis.connect();
         Jedis redis = jedisPool.getResource();
         try{
@@ -572,15 +570,12 @@ public class RedisDAO  {
             associato al record avente come chiave
             proprio lo short url da ricercare
             */
-            String longUrl = redis.hget(shortUrl,recordLong);
-
-            //redis.close();
-            if (longUrl==null) longUrl="";
-            return longUrl;
-
+            longUrl = redis.hget(shortUrl,recordLong);
         } finally {
             jedisPool.returnResource(redis);
         }
+
+        return longUrl;
     }
 
    /*

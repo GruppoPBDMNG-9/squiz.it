@@ -59,7 +59,6 @@ public class Server {
                 //Url auto-generated is available again
                 new Shortener().undo();
 
-
                 if(daoR.availableUrl(url)) {
                     daoR.saveUrl(longUrl, url, username,new CalendarUtility().getCurrentData());
                     json.put(Args.RESULT, Args.OKAY);
@@ -245,9 +244,10 @@ public class Server {
 
         //Click!
         get("/*", (request, response) -> {
-
-            String shortUrl = (request.pathInfo()).substring(1);
+            String shortUrl = "http://localhost:4567/" + (request.pathInfo()).substring(1);
             String longUrl = daoR.findLongUrl(shortUrl);
+            //System.out.println("shortUrl = [" + shortUrl+ "]");
+            //System.out.println("longUrl = [" + longUrl+ "]");
 
             if (longUrl.isEmpty()) {
                 return Args.INVALID_SHORT_URL;
