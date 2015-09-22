@@ -1,6 +1,8 @@
 package dao;
 
 
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 import utility.CalendarUtility;
 import utility.Pair;
 import utility.StatisticRecord;
@@ -15,6 +17,18 @@ import utility.StatisticsIndex;
 
 
 public class RedisDAO  {
+
+    private Jedis redis = new JedisPool(new JedisPoolConfig(),"localhost").getResource();
+
+    private static final RedisDAO instance=new RedisDAO();
+    private RedisDAO(){
+
+    }
+    public static RedisDAO getInstance(){
+        return instance;
+    }
+
+
     /*
     tale stringa memorizza il nome
     della chiave che identifica
@@ -223,7 +237,7 @@ public class RedisDAO  {
         rd.addClick("short2","europa","italia","17/09/2015");
         rd.addClick("short2","europa","italia","17/09/2015");
 
-        */
+
 
         rd.addClick("short1","europa","italia","17/02/2014");
         rd.addClick("short1","europa","italia","17/03/2014");
@@ -231,7 +245,8 @@ public class RedisDAO  {
         rd.addClick("short1","europa","germania","17/12/2014");
         rd.addClick("short2","europa","italia","17/01/2014");
         rd.addClick("short2","europa","italia","17/09/2014");
-       LinkedList<Pair> listStat= rd.getLastStat("donato91");
+        */
+        LinkedList<Pair> listStat= rd.getLastStat("donato91","10/12/2015");
         for (Pair p: listStat ){
             System.out.println(p.getMonth() + " : " + p.getClick());
         }
@@ -248,8 +263,10 @@ public class RedisDAO  {
 
         boolean result;
 
-        Jedis redis=RedisConnection.getIstance();
-        redis.connect();
+
+      //  redis.connect();
+
+
         /*
         con la seguente query recupero dal database la lista contenente
         tutti gli short URL creati
@@ -261,7 +278,7 @@ public class RedisDAO  {
             result=true; //l'url non è presente nella lista di quelli utilizzati quindi result=true
         }
 
-        redis.close();
+//        redis.close();
 
         return result;
 
@@ -275,9 +292,9 @@ public class RedisDAO  {
     - data in cui è stato effettuato lo shortening
     - username (eventualmente null)
      */
-    public void saveUrl(String longUrl, String shortUrl, String username){
+    public void saveUrl(String longUrl, String shortUrl, String username,String data){
         final String UNDEFINED_USER = "---"; //se l'url va messo fra quelli anonimi arriva questo username
-        final String data = new CalendarUtility().getCurrentData();
+        //final String data = new CalendarUtility().getCurrentData();
 
         /*
         tale variabile memorizza il nome della lista
@@ -287,8 +304,8 @@ public class RedisDAO  {
         viene concatenato lo specifico username
          */
         final String structureList= userShorts+username;
-        Jedis redis=RedisConnection.getIstance();
-        redis.connect();
+
+        //redis.connect();
 
         /*
         per prima cosa mi memorizzo l'url short nella lista degli url creati
@@ -319,7 +336,7 @@ public class RedisDAO  {
 
 
 
-        redis.close();
+//        redis.close();
 
         //Una stampa di prova per vedere se i dati giungono correttamente fin qui
        // System.out.println("longUrl = [" + longUrl + "], shortUrl = [" + shortUrl + "], username = [" + username + "]");
@@ -333,8 +350,8 @@ public class RedisDAO  {
 
         HashMap<String,String> users;
 
-        Jedis redis=RedisConnection.getIstance();
-        redis.connect();
+
+        //redis.connect();
         /*
         con la seguente query recupero dal database
         l'hashmap degli utenti registrati
@@ -344,7 +361,7 @@ public class RedisDAO  {
          */
         users= (HashMap<String,String>) redis.hgetAll(USERS);
 
-        redis.close();
+    //    redis.close();
 
         if (users.containsKey(username)) {
             String savedPassword=users.get(username);
@@ -394,8 +411,8 @@ public class RedisDAO  {
          */
         final String structureList= userShorts+username;
 
-        Jedis redis=RedisConnection.getIstance();
-        redis.connect();
+
+       // redis.connect();
 
         /*
         con questa query recuper dal database la lista
@@ -461,12 +478,12 @@ public class RedisDAO  {
 
         }
 
-        redis.close();
-
 
         result.put("totalShorteners", statisticsList.size());
         result.put("totalClick" , totalClicks);
         result.put("records", statisticsList);
+
+        //redis.close();
 
         return result;
     }
@@ -477,8 +494,8 @@ public class RedisDAO  {
     public boolean checkUsernameAvailability(String username){
         HashMap<String,String> users;
 
-        Jedis redis=RedisConnection.getIstance();
-        redis.connect();
+
+        //redis.connect();
         /*
         con la seguente query recupero dal database
         l'hashmap degli utenti registrati
@@ -487,7 +504,7 @@ public class RedisDAO  {
          */
         users= (HashMap<String,String>) redis.hgetAll(USERS);
 
-        redis.close();
+       // redis.close();
 
         if (users.containsKey(username)) return false;
         else return true;
@@ -499,8 +516,8 @@ public class RedisDAO  {
     public void saveNewUser(String username, String password){
         HashMap<String,String> users;
 
-        Jedis redis=RedisConnection.getIstance();
-        redis.connect();
+
+        //redis.connect();
 
         /*
         con la seguente query recupero dal database
@@ -518,7 +535,7 @@ public class RedisDAO  {
          */
         redis.hmset(USERS,users);
 
-        redis.close();
+        //redis.close();
     }
 
 
@@ -529,8 +546,8 @@ public class RedisDAO  {
     il metodo restituisce la stringa vuota
      */
     public String findLongUrl(String shortUrl){
-        Jedis redis=RedisConnection.getIstance();
-        redis.connect();
+
+      //  redis.connect();
 
         /*
         con la seguente query recuper dal database
@@ -540,7 +557,7 @@ public class RedisDAO  {
          */
         String longUrl = redis.hget(shortUrl,recordLong);
 
-        redis.close();
+//        redis.close();
 
         if (longUrl==null) longUrl="";
         return longUrl;
@@ -585,8 +602,8 @@ public class RedisDAO  {
          */
         String mapCountryContinent=hashMCountry+continent+"-"+shortUrl;
 
-        Jedis redis=RedisConnection.getIstance();
-        redis.connect();
+
+       // redis.connect();
 
         /*
         Aggiungo alla lista delle date dei click
@@ -660,7 +677,7 @@ public class RedisDAO  {
 
         redis.del(mapCountryContinent);
         redis.hmset(mapCountryContinent,mCountry);
-        redis.close();
+       // redis.close();
     }
 
     /*
@@ -673,8 +690,8 @@ public class RedisDAO  {
 
         String mapContinent=hashMContinent+shortUrl;
 
-        Jedis redis=RedisConnection.getIstance();
-        redis.connect();
+
+        //redis.connect();
 
         /*
         con la seguente query recupero dal database
@@ -682,7 +699,7 @@ public class RedisDAO  {
         ricevuti dallo shortURl suddivisi per continenti
          */
         HashMap<String,String> mCont= (HashMap<String,String>) redis.hgetAll(mapContinent);
-        redis.close();
+
 
         /*
         devo convertire il value dell'hashMap da string a int
@@ -691,7 +708,7 @@ public class RedisDAO  {
             continentResult.put(c,Integer.parseInt(mCont.get(c)));
         }
 
-
+       // redis.close();
         return continentResult;
     }
 
@@ -705,8 +722,8 @@ public class RedisDAO  {
 
         String mapCountryContinent=hashMCountry+continent+"-"+shortUrl;
 
-        Jedis redis=RedisConnection.getIstance();
-        redis.connect();
+
+       // redis.connect();
 
         /*
         con la seguente query recupero dal database
@@ -715,7 +732,7 @@ public class RedisDAO  {
         appartenenti al continente specificato
          */
         HashMap<String,String> mCauntry = (HashMap<String,String>) redis.hgetAll(mapCountryContinent);
-        redis.close();
+
 
          /*
         devo convertire il value dell'hashMap da string a int
@@ -724,6 +741,7 @@ public class RedisDAO  {
             countriesResult.put(c,Integer.parseInt(mCauntry.get(c)));
         }
 
+      //  redis.close();
         return countriesResult;
     }
 
@@ -767,10 +785,10 @@ public class RedisDAO  {
     per i suoi shorts
     suddivisi in
      */
-    public LinkedList<Pair> getLastStat(String username){
+    public LinkedList<Pair> getLastStat(String username,String dataC){
 
-        Jedis redis=RedisConnection.getIstance();
-        redis.connect();
+
+        //redis.connect();
 
         /*
         linkedlist da restituire
@@ -784,12 +802,7 @@ public class RedisDAO  {
          */
         HashMap<Integer,String> calendar= CalendarUtility.getCalendar();
 
-        /*
-        data corrente sulla quale basarsi per le statistiche
-         */
-        String dataC = new CalendarUtility().getCurrentData();
-
-        /*
+       /*
         Slitto la data in modo da ottenere
         un array di tre elementi
         contenente giorno-mese-anno
@@ -825,6 +838,7 @@ public class RedisDAO  {
         dall'utente
          */
         String query=userShorts+username;
+
         List<String> listURL = redis.lrange(query,0,redis.llen(query));
 
         /*
@@ -890,7 +904,9 @@ public class RedisDAO  {
         pair = new Pair("dicembre", 1000);
         result.add(pair);
         */
-        redis.close();
+
+
+       // redis.close();
 
         return result;
     }

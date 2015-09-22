@@ -14,11 +14,14 @@ import java.util.Map.Entry;
 
 import static spark.Spark.get;
 import static spark.Spark.options;
+import static spark.SparkBase.port;
 
 public class Server {
     static String lastUrl;
+    private static final RedisDAO daoR=RedisDAO.getInstance();
 
     public static void main(String[] args) {
+
 
         //Random short path generator
         get("/generateShortening", (request, response) -> {
@@ -48,7 +51,7 @@ public class Server {
             String choosenUrl = splittedUrl[splittedUrl.length - 1];
 
             if(choosenUrl.equals(lastUrl)){
-                new RedisDAO().saveUrl(longUrl, url, username);
+               daoR.saveUrl(longUrl, url, username,new CalendarUtility().getCurrentData());
 
                 json.put(Args.RESULT, Args.OKAY);
                 json.put(Args.URL_SAVED, Args.URL_SAVED_MSG);
@@ -57,9 +60,9 @@ public class Server {
                 //Url auto-generated is available again
                 new Shortener().undo();
 
-                RedisDAO dao = new RedisDAO();
-                if(dao.availableUrl(url)) {
-                    dao.saveUrl(longUrl, url, username);
+
+                if(daoR.availableUrl(url)) {
+                    daoR.saveUrl(longUrl, url, username,new CalendarUtility().getCurrentData());
                     json.put(Args.RESULT, Args.OKAY);
                     json.put(Args.URL_SAVED, Args.URL_SAVED_MSG);
                     json.put(Args.URL, url);
@@ -85,9 +88,9 @@ public class Server {
             FormatStringChecker fscPassword = new FormatStringChecker(password);
 
             if(fscUsername.check() && fscPassword.check()){
-                RedisDAO dao = new RedisDAO();
-                if(dao.checkUsernameAvailability(username)){
-                    dao.saveNewUser(username, password);
+
+                if(daoR.checkUsernameAvailability(username)){
+                    daoR.saveNewUser(username, password);
                     json.put(Args.SINGUP_RESULT_MSG, Args.SINGUP_OK);
                 } else {
                     json.put(Args.SINGUP_RESULT_MSG, Args.SINGUP_ERROR);
@@ -121,8 +124,8 @@ public class Server {
                 if(!validUsername || !validPassword){
                     result = Args.ERROR;
                 } else {
-                    RedisDAO dao = new RedisDAO();
-                    if(dao.login(username, password)){
+
+                    if(daoR.login(username, password)){
                         result = Args.OKAY;
                         json.put(Args.USERNAME, username);
                     } else {
@@ -146,7 +149,7 @@ public class Server {
         get("/loadShortening", (request, response) -> {
             JSONObject json = new JSONObject();
             String username = request.queryParams(Args.USERNAME);
-            HashMap<String, Object> map = new RedisDAO().loadUserStat(username);
+            HashMap<String, Object> map = daoR.loadUserStat(username);
             LinkedList<StatisticRecord> recordList = (LinkedList<StatisticRecord>) map.get(Args.STAT_RECORDS);
 
             JSONObject records = new JSONObject();
@@ -177,7 +180,7 @@ public class Server {
 
             JSONArray continentList = new JSONArray();
             try {
-                HashMap<String, Integer> continents = new RedisDAO().getContinentClick(shortUrl);
+                HashMap<String, Integer> continents = daoR.getContinentClick(shortUrl);
                 for(Entry<String, Integer> continent : continents.entrySet()){
                     JSONObject nextContinent = new JSONObject();
                     nextContinent.put(Args.NAME, continent.getKey());
@@ -202,7 +205,7 @@ public class Server {
 
             JSONArray countryList = new JSONArray();
             try {
-                HashMap<String, Integer> countries = new RedisDAO().getCountryClick(shortUrl, continent);
+                HashMap<String, Integer> countries = daoR.getCountryClick(shortUrl, continent);
                 for(Entry<String, Integer> country : countries.entrySet()){
                     JSONObject nextCountry = new JSONObject();
                     nextCountry.put(Args.NAME, country.getKey());
@@ -226,7 +229,7 @@ public class Server {
             String username = request.queryParams(Args.USERNAME);
 
             try {
-                LinkedList<Pair> list = new RedisDAO().getLastStat(username);
+                LinkedList<Pair> list = daoR.getLastStat(username,new CalendarUtility().getCurrentData());
                 for(Pair pair : list){
                     JSONObject nextMonth = new JSONObject();
                     nextMonth.put(Args.NAME, pair.getMonth());
@@ -244,9 +247,9 @@ public class Server {
 
         //Click!
         get("/*", (request, response) -> {
-            RedisDAO dao = new RedisDAO();
+
             String shortUrl = (request.pathInfo()).substring(1);
-            String longUrl = dao.findLongUrl(shortUrl);
+            String longUrl = daoR.findLongUrl(shortUrl);
 
             if (longUrl.isEmpty()) {
                 return Args.INVALID_SHORT_URL;
@@ -257,7 +260,7 @@ public class Server {
                     String continent = ipFinder.getContinent();
                     String country = ipFinder.getCountry();
                     String data = new CalendarUtility().getCurrentData();
-                    dao.addClick(shortUrl, continent, country, data);
+                    daoR.addClick(shortUrl, continent, country, data);
                 } catch (RuntimeException e) {
                     System.out.println("error = disallowed click update");
                 }
