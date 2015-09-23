@@ -1,5 +1,6 @@
 package utility;
 
+
 public class FormatStringChecker {
     private String text;
 
@@ -32,7 +33,8 @@ public class FormatStringChecker {
         return true;
     }
 
-    private static String removeStartAndEndIfEmpty(String text){
+    public  static String removeStartAndEndIfEmpty(String text){
+
         while(text.startsWith(" ")){
             text = text.substring(1);
         }
@@ -41,13 +43,8 @@ public class FormatStringChecker {
             text = text.substring(0,text.length()-1);
         }
 
-        return text;
-    }
 
-    //USING ONLY FOR TESTING
-    public static void main(String[] args){
-        String s = "  ciao     ";
-        System.out.println(new FormatStringChecker(s).check());
+        return text;
     }
 
 }
