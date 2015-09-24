@@ -6,6 +6,7 @@ public class Args {
     static final String URL = "url";;
     static final String USERNAME = "username";
     static final String PASSWORD = "password";
+    static final String DOMAIN = "http://localhost:4567/";
 
     static final String UNDEFINED_USER = "---";
 

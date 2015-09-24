@@ -22,6 +22,8 @@ public class Shortener {
     }
 
     public Shortener(String lastUrl){
+        alphabet = new LowerAlphabet();
+
         this.char1 = Character.toString(lastUrl.charAt(0));
         this.char2 = Character.toString(lastUrl.charAt(1));
         this.num1 = (short) (Integer.parseInt(Character.toString(lastUrl.charAt(2))));

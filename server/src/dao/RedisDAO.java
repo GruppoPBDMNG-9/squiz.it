@@ -903,7 +903,8 @@ public class RedisDAO  {
             jedisPool.returnResource(redis);
         }
 
-
+        String[] resultSplit = result.split("/");
+        result = resultSplit[resultSplit.length - 1];
         return result;
     }
 }
