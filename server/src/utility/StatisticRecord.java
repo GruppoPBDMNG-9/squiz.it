@@ -26,8 +26,5 @@ public class StatisticRecord {
         return this.args.get(StatisticsIndex.CLICK);
     }
 
-    public String getPopularCountry(){
-        return this.args.get(StatisticsIndex.POPULAR_COUNTRY);
-    }
 }
 
