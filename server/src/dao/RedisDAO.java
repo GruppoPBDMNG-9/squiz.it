@@ -9,16 +9,13 @@ import utility.Pair;
 import utility.StatisticRecord;
 import utility.StatisticsIndex;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 
 public class RedisDAO  {
 
     private JedisPool jedisPool = new JedisPool(new JedisPoolConfig(),"localhost");
-    //private static final RedisDAO instance=new RedisDAO();
+
     private static final RedisDAO instance = null;
 
     private RedisDAO(){}
@@ -30,6 +27,11 @@ public class RedisDAO  {
             return instance;
     }
 
+
+    public static void main(String[] args){
+        RedisDAO d= getInstance();
+        d.deleteDB();
+    }
 
     /*
     tale stringa memorizza il nome
@@ -132,6 +134,21 @@ public class RedisDAO  {
     private final String recordUser="username";
 
     /*
+        tale stringa memorizza il nome
+        del campo che specifica
+        se lo specifico short URL è stato auto generato
+        dal sistema oppure è stato scelto manualmente
+        dall'utente che lo ha creato.
+        tale campo fa parte di una struttura dati record
+        ogni record fa riferimento ad uno specifico
+        short URL e nel database
+        la chiave che identifica ogni record
+        prenderà il nome dello short URL a cui esso
+        si riferisce
+     */
+    private final String recordAutoGen="autogenarated";
+
+    /*
     tale stringa memorizza il nome
     della chiave che indentifica la lista
     che memorizza nel database
@@ -143,120 +160,6 @@ public class RedisDAO  {
      */
     private final String userShorts="shorts-";
 
-
-
-    /*public static void main(String[] args){
-
-        RedisDAO rd= new RedisDAO();
-
-        /*
-        rd.saveNewUser("donato91","0000");
-        rd.saveNewUser("peppo91","peppoGay");
-        rd.saveNewUser("corrado91","marina");
-
-
-        System.out.println("username donato91 disponibile= " + rd.checkUsernameAvailability("donato91"));
-        System.out.println("username matteo disponibile= " + rd.checkUsernameAvailability("matteo"));
-        System.out.println("username wanda disponibile= " + rd.checkUsernameAvailability("wanda"));
-        System.out.println("username corrado91 disponibile= " + rd.checkUsernameAvailability("corrado91"));
-        System.out.println("username peppo91 disponibile= " + rd.checkUsernameAvailability("peppo91"));
-
-
-        System.out.println("login1= " + rd.login("donato91", "0000"));
-        System.out.println("login2= " + rd.login("donato91", "1"));
-        System.out.println("login3= "+rd.login("checco", "0000"));
-        System.out.println("login4= "+rd.login("peppo91", "0000"));
-        System.out.println("login5= "+rd.login("peppo91", "peppoGay"));
-
-
-
-        rd.saveUrl("www.sportmediaset.mediaset.it", "short1", "donato91");
-        rd.saveUrl("www.google.com", "short2", "donato91");
-        rd.saveUrl("www.diretta.it", "short3", "peppo91");
-
-
-        System.out.println(rd.findLongUrl("short1"));
-        System.out.println(rd.findLongUrl("io"));
-        System.out.println(rd.findLongUrl("tu"));
-        System.out.println(rd.findLongUrl("egli"));
-        System.out.println(rd.findLongUrl("noi"));
-        System.out.println(rd.findLongUrl("short2"));
-        System.out.println(rd.findLongUrl("short3"));
-
-
-
-        rd.addClick("short2","europa","italia","15/09/2015");
-        rd.addClick("short2","europa","italia","15/09/2015");
-        rd.addClick("short2","europa","italia","15/09/2015");
-        rd.addClick("short2","asia","giappone","15/09/2015");
-        rd.addClick("short2","europa","italia","15/09/2015");
-        rd.addClick("short2","europa","francia","15/09/2015");
-        rd.addClick("short2","europa","italia","15/09/2015");
-        rd.addClick("short2","asia","giappone","15/09/2015");
-        rd.addClick("short2","europa","Germania","15/09/2015");
-        rd.addClick("short2","europa","Germania","15/09/2015");
-        rd.addClick("short2","asia","cina","15/09/2015");
-        rd.addClick("short1","asia","cina","15/09/2015");
-
-
-        HashMap<String,Integer> h= rd.getContinentClick("shorts2");
-        for (String s: h.keySet()){
-            System.out.println(s + " " + h.get(s));
-        }
-
-        HashMap<String,Integer> h2= rd.getCountryClick("shorts2", "europa");
-        for (String s: h2.keySet()){
-            System.out.println(s + " " + h2.get(s));
-        }
-
-        HashMap<String,Integer> h3= rd.getCountryClick("shorts2","asia");
-        for (String s: h3.keySet()){
-            System.out.println(s + " " + h3.get(s));
-        }
-
-        HashMap<String,Integer> h4= rd.getCountryClick("shorts2","america");
-        for (String s: h4.keySet()){
-            System.out.println(s + " " + h4.get(s));
-        }
-
-
-        HashMap<String,Object> s=rd.loadUserStat("donato91");
-        System.out.println("num link: " + s.get("totalShorteners"));
-        System.out.println("total click: " + s.get("totalClick"));
-        */
-
-        /*
-        rd.saveNewUser("donato91", "0");
-        rd.saveUrl("www.facebook.com", "short1", "donato91");
-        rd.saveUrl("www.diretta.com","short2","donato91");
-        rd.saveUrl("www.giovinazzoViva.com","short3","donato91");
-        rd.saveUrl("www.google.com", "short4", "donato91");
-
-        rd.addClick("short1","europa","italia","17/09/2015");
-        rd.addClick("short1","europa","italia","17/09/2015");
-        rd.addClick("short1","europa","italia","17/09/2015");
-        rd.addClick("short1","europa","germania","17/09/2015");
-        rd.addClick("short2","europa","italia","17/09/2015");
-        rd.addClick("short2","europa","italia","17/09/2015");
-
-
-
-        rd.addClick("short1","europa","italia","17/02/2014");
-        rd.addClick("short1","europa","italia","17/03/2014");
-        rd.addClick("short1","europa","italia","17/10/2014");
-        rd.addClick("short1","europa","germania","17/12/2014");
-        rd.addClick("short2","europa","italia","17/01/2014");
-        rd.addClick("short2","europa","italia","17/09/2014");
-
-        LinkedList<Pair> listStat= rd.getLastStat("donato91","10/12/2015");
-        for (Pair p: listStat ){
-            System.out.println(p.getMonth() + " : " + p.getClick());
-        }
-
-    }
-*/
-
-
     /**
      Controlla se la customizzazione scelta è disponibile
      il metodo restituisce true se l'url short è disponibile
@@ -264,13 +167,12 @@ public class RedisDAO  {
       */
     public boolean availableUrl(String url){
         boolean result;
-        //redis.connect();
+        Jedis redis = jedisPool.getResource();
 
         /*
         con la seguente query recupero dal database la lista contenente
         tutti gli short URL creati
          */
-        Jedis redis = jedisPool.getResource();
         try {
             List<String> shortURL = redis.lrange(shortsURL, 0, redis.llen(shortsURL));
             if (shortURL.contains(url)) {
@@ -282,7 +184,7 @@ public class RedisDAO  {
             jedisPool.returnResource(redis);
         }
 
-        //redis.close();
+
         return result;
     }
 
@@ -294,8 +196,9 @@ public class RedisDAO  {
     - data in cui è stato effettuato lo shortening
     - username (eventualmente null)
      */
-    public void saveUrl(String longUrl, String shortUrl, String username,String data){
+    public void saveUrl(String longUrl, String shortUrl, String username,String data, boolean autoGen){
         final String UNDEFINED_USER = "---"; //se l'url va messo fra quelli anonimi arriva questo username
+
 
         /*
         tale variabile memorizza il nome della lista
@@ -306,7 +209,7 @@ public class RedisDAO  {
          */
         final String structureList= userShorts+username;
 
-        //redis.connect();
+
         Jedis redis = jedisPool.getResource();
         try{
             /*
@@ -320,6 +223,7 @@ public class RedisDAO  {
             */
             redis.hset(shortUrl, recordLong, longUrl);
             redis.hset(shortUrl, recordData, data);
+            redis.hset(shortUrl, recordAutoGen, Boolean.toString(autoGen));
 
             if (username.equals(UNDEFINED_USER)) {
             /*
@@ -338,10 +242,7 @@ public class RedisDAO  {
         } finally {
             jedisPool.returnResource(redis);
         }
-//        redis.close();
 
-        //Una stampa di prova per vedere se i dati giungono correttamente fin qui
-       // System.out.println("longUrl = [" + longUrl + "], shortUrl = [" + shortUrl + "], username = [" + username + "]");
     }
 
     /*
@@ -350,8 +251,9 @@ public class RedisDAO  {
        */
     public boolean login(String username, String password){
 
+        Jedis redis = jedisPool.getResource();
         HashMap<String,String> users;
-        //redis.connect();
+        boolean result;
         /*
         con la seguente query recupero dal database
         l'hashmap degli utenti registrati
@@ -360,38 +262,32 @@ public class RedisDAO  {
         coincide con quella associata a tale username
          */
 
-        Jedis redis = jedisPool.getResource();
+
         try{
             users= (HashMap<String,String>) redis.hgetAll(USERS);
 
             if (users.containsKey(username)) {
                 String savedPassword=users.get(username);
-                if (password.equals(savedPassword)) return true;
-                else return false;
+                if (password.equals(savedPassword)) result= true;
+                else result= false;
             } else {
-                return false;
+                result= false;
             }
         } finally {
             jedisPool.returnResource(redis);
         }
-        //redis.close();
+        return result;
     }
 
+    /*
+       Questo metodo resistuisce la statistiche dell'utente avente l'username passato come argomento.
+       Più nel dettaglio ritorna 3 oggetti:
+       - shorteners totali
+       - click totali, quindi sommando tutti click per ogni shortening salvato
+       - Una lista di record. Ogni oggetto record contiene le informazioni su un singolo shortening effettuato
+       */
     public HashMap<String, Object> loadUserStat(String username){
-        /* PER DONATO E CORRADO
-        Questo metodo resistuisce la statistiche dell'utente avente l'username passato come argomento.
-        Più nel dettaglio ritorna 3 oggetti:
-        - shorteners totali
-        - click totali, quindi sommando tutti click per ogni shortening salvato
-        - Una lista di record. Ogni oggetto record contiene le informazioni su un singolo shortening effettuato.
 
-        La strategia è quella di creare solo la lista di shortening, e di calcolare in questo metodo shorteners totali e click totali,
-        in modo da non avere informazioni ridondanti nel database. Create solo la lista di oggetti StatisticRecord al posto delle prove
-        che ho fatto io. Total shorteners e click totali li ho già calcolati io.
-        Seguono due shortening di prova per maggior chiarezza e utilizzati per restare il client
-
-        Vi voglio bene :)
-        */
 
         //Map da restituire
         HashMap<String, Object> result  = new HashMap<String, Object>();
@@ -484,25 +380,27 @@ public class RedisDAO  {
 
             }
 
+
             result.put("totalShorteners", statisticsList.size());
             result.put("totalClick" , totalClicks);
             result.put("records", statisticsList);
         } finally {
             jedisPool.returnResource(redis);
         }
-        //redis.close();
+
         return result;
     }
 
     /*
-    Used in SINGUP phase, and check the username availability
+    verifica se un username è disponibile
+    restituisce false se l'username è stato già utilizzato
+    true altrimenti
      */
     public boolean checkUsernameAvailability(String username){
         HashMap<String,String> users;
-
-
-        //redis.connect();
+        boolean result;
         Jedis redis = jedisPool.getResource();
+
         try {
             /*
             con la seguente query recupero dal database
@@ -513,24 +411,24 @@ public class RedisDAO  {
             users = (HashMap<String, String>) redis.hgetAll(USERS);
 
             if (users.containsKey(username)) {
-                return false;
+                result= false;
             } else {
-                return true;
+                result= true;
             }
         } finally {
             jedisPool.returnResource(redis);
         }
-        // redis.close();
+        return result;
     }
 
     /*
-    Register a new user on out platform. Welcome on board!
-     */
+    Registra un nuovo utente alla piattaforma
+      */
     public void saveNewUser(String username, String password){
         HashMap<String,String> users;
 
 
-        //redis.connect();
+
         Jedis redis = jedisPool.getResource();
         try{
             /*
@@ -550,7 +448,7 @@ public class RedisDAO  {
         } finally {
             jedisPool.returnResource(redis);
         }
-        //redis.close();
+
     }
 
     /*
@@ -560,8 +458,8 @@ public class RedisDAO  {
     il metodo restituisce la stringa vuota
      */
     public String findLongUrl(String shortUrl){
-        String longUrl = "";
-        //redis.connect();
+
+        String longUrl;
         Jedis redis = jedisPool.getResource();
         try{
             /*
@@ -571,6 +469,11 @@ public class RedisDAO  {
             proprio lo short url da ricercare
             */
             longUrl = redis.hget(shortUrl,recordLong);
+
+
+            if (longUrl==null) longUrl="";
+
+
         } finally {
             jedisPool.returnResource(redis);
         }
@@ -618,7 +521,7 @@ public class RedisDAO  {
         String mapCountryContinent=hashMCountry+continent+"-"+shortUrl;
 
 
-       // redis.connect();
+
         Jedis redis = jedisPool.getResource();
         try{
             /*
@@ -696,7 +599,7 @@ public class RedisDAO  {
             jedisPool.returnResource(redis);
         }
 
-       // redis.close();
+
     }
 
     /*
@@ -708,8 +611,6 @@ public class RedisDAO  {
         HashMap<String, Integer> continentResult = new HashMap<String, Integer>();
         String mapContinent=hashMContinent+shortUrl;
 
-
-        //redis.connect();
         Jedis redis = jedisPool.getResource();
         try{
              /*
@@ -730,7 +631,7 @@ public class RedisDAO  {
             jedisPool.returnResource(redis);
         }
 
-       // redis.close();
+
         return continentResult;
     }
 
@@ -744,7 +645,6 @@ public class RedisDAO  {
         String mapCountryContinent=hashMCountry+continent+"-"+shortUrl;
 
 
-       // redis.connect();
         Jedis redis = jedisPool.getResource();
         try{
              /*
@@ -766,17 +666,17 @@ public class RedisDAO  {
             jedisPool.returnResource(redis);
         }
 
-        //redis.close();
+
         return countriesResult;
     }
 
     /*
     Restituisce il numero di click totali ottenuti dall'utente
     per i suoi shorts
-    suddivisi in
+    suddivisi per mesi nell'arco dell'ultimo anno (13 mesi compreso quello corrente)
      */
     public LinkedList<Pair> getLastStat(String username,String dataC){
-        //redis.connect();
+
 
         /*
         linkedlist da restituire
@@ -868,38 +768,142 @@ public class RedisDAO  {
             jedisPool.returnResource(redis);
         }
 
-        /*
-        Pair pair;
-        pair = new Pair("gennaio", 10);
-        result.add(pair);
-        pair = new Pair("febbraio", 20);
-        result.add(pair);
-        pair = new Pair("marzo", 40);
-        result.add(pair);
-        pair = new Pair("aprile", 100);
-        result.add(pair);
-        pair = new Pair("maggio", 500);
-        result.add(pair);
-        pair = new Pair("giugno", 2000);
-        result.add(pair);
-        pair = new Pair("luglio", 5000);
-        result.add(pair);
-        pair = new Pair("agosto", 2300);
-        result.add(pair);
-        pair = new Pair("settembre", 1100);
-        result.add(pair);
-        pair = new Pair("ottobre", 850);
-        result.add(pair);
-        pair = new Pair("novembre", 1800);
-        result.add(pair);
-        pair = new Pair("dicembre", 1000);
-        result.add(pair);
-        */
 
-
-       // redis.close();
 
         return result;
     }
 
+    /*
+    tale metodo è eseguito all'avvio del server
+    serve per popolare il database con un utente
+    e dei link.
+     */
+    public void populateDB(){
+
+        /*
+        verifico se l'username è disponibile
+        se è disponibile vuol dire che nel
+        database non sono presenti i dati di
+        default quindi si procede
+        ad inseririre tali dati
+         */
+        if (checkUsernameAvailability("fumarola")){
+
+            //aggiungo l'utente
+            saveNewUser("fumarola","pbdmng");
+
+            //salvo dei shortURL
+            String short1="http://localhost:4567/short1";
+            String short2="http://localhost:4567/short2";
+
+            saveUrl("http://pbdmng.datatoknowledge.it/",short1,"fumarola","23/09/2015",false);
+            saveUrl("http://www.di.uniba.it/~malerba/",short2,"fumarola","23/09/2015",false);
+
+            //salvo dei click
+            addClick(short1,"EUROPA","Italia","24/09/2015");
+            addClick(short1,"EUROPA","Italia","24/09/2015");
+            addClick(short1,"EUROPA","Spagna","24/09/2015");
+
+            addClick(short2,"EUROPA","Italia","24/09/2015");
+        }
+    }
+
+
+    /*
+    tale metodo serve per eliminare tutti i dati
+    dal database
+    esso viene utilizzato al momento solo nella classe test
+    per andare a "pulire" il db dopo aver effettuato i test
+     */
+    public void deleteDB() {
+        Jedis redis = jedisPool.getResource();
+
+        try {
+
+            /*
+            con la seguente query
+            recupero l'insieme delle chiavi
+            memorizzate nel database
+             */
+            Set<String> keys = redis.keys("*");
+
+            /*
+            adesso itero sulla struttura dati
+            e per ciascuna chiave eseguo il comando
+            redis per elimanrla dal db
+             */
+            for (String key: keys){
+                redis.del(key);
+            }
+        } finally {
+            jedisPool.returnResource(redis);
+        }
+    }
+
+    /*
+    tale metodo restituisce l'ultimo
+    short URL che è stato auto generato
+    dal sistema.
+    Se restituisce null vuol dire che
+    il sistema non ha ancora auto generato
+    alcun short URL
+     */
+    public String getLastShortURLAutogenerated(){
+        String result=null;
+
+        Jedis redis = jedisPool.getResource();
+
+        try {
+
+
+            /*
+            con questa query mi faccio restituire la
+            lista di tutti gli URL short creati e
+            memorizzati nel database
+             */
+            List <String> listShortsURL= redis.lrange(shortsURL,0,redis.llen(shortsURL));
+
+            /*
+            ora ciclo su tutte gli shortURL appena ottenuti
+            per verificare qual'è il primo autogenerato
+             */
+            int i=0;
+            boolean urlFound=false;
+            while (i<listShortsURL.size() &&  urlFound==false) {
+
+                 /*
+                        con tale query mi faccio restituire il valore
+                        del campo autoGen del record che fa riferimento
+                        allo specifico shortURL
+                */
+                String autoGen=redis.hget(listShortsURL.get(i),recordAutoGen);
+                if (autoGen.equals("true")){
+                    result=listShortsURL.get(i);
+                    urlFound=true;
+                }
+                i++;
+            }
+
+/*
+            for (String url: listShortsURL){
+
+
+
+                String autoGen=redis.hget(url,recordAutoGen);
+
+                if (autoGen.equals("true")){
+                    result=url;
+                    break;
+                }
+
+            }
+            */
+
+        } finally {
+            jedisPool.returnResource(redis);
+        }
+
+
+        return result;
+    }
 }

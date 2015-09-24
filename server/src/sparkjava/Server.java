@@ -21,6 +21,7 @@ public class Server {
 
     public static void main(String[] args) {
 
+        daoR.populateDB();
 
         //Random short path generator
         get("/generateShortening", (request, response) -> {
@@ -49,8 +50,11 @@ public class Server {
             String[] splittedUrl = url.split("/");
             String choosenUrl = splittedUrl[splittedUrl.length - 1];
 
-            if(choosenUrl.equals(lastUrl)){
-               daoR.saveUrl(longUrl, url, username,new CalendarUtility().getCurrentData());
+
+            boolean isAutogen= choosenUrl.equals(lastUrl);
+
+            if(isAutogen){
+               daoR.saveUrl(longUrl, url, username,new CalendarUtility().getCurrentData(),isAutogen);
 
                 json.put(Args.RESULT, Args.OKAY);
                 json.put(Args.URL_SAVED, Args.URL_SAVED_MSG);
@@ -60,7 +64,7 @@ public class Server {
                 new Shortener().undo();
 
                 if(daoR.availableUrl(url)) {
-                    daoR.saveUrl(longUrl, url, username,new CalendarUtility().getCurrentData());
+                    daoR.saveUrl(longUrl, url, username,new CalendarUtility().getCurrentData(),isAutogen);
                     json.put(Args.RESULT, Args.OKAY);
                     json.put(Args.URL_SAVED, Args.URL_SAVED_MSG);
                     json.put(Args.URL, url);
