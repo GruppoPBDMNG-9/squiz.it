@@ -8,8 +8,6 @@ public class Args {
     static final String PASSWORD = "password";
     static final String DOMAIN = "http://localhost:4567/";
 
-    static final String UNDEFINED_USER = "---";
-
     static final String RESULT = "result";
     static final String OKAY = "ok";
     static final String ERROR = "error";
@@ -21,7 +19,7 @@ public class Args {
     static final String SINGUP_RESULT_MSG = "singupResult";
     static final String SINGUP_OK = "Welcome a board! Thank you for joining us!";
     static final String SINGUP_ERROR = "Email already taken. So sorry.";
-    static final String FORMAT_ERROR = "Error in username and/or password choice. Only letters and numbers allowed!";
+    static final String FORMAT_ERROR = "Error in username and/or password. Only letters and numbers allowed!";
     static final String INVALID_SHORT_URL = "Invalid short url";
 
     //Stat args

@@ -9,7 +9,8 @@ public class UpperAlphabet extends Alphabet {
         initAlphabet(super.alphabet);
     }
 
-    private static void initAlphabet(HashMap map){
+    @Override
+    protected void initAlphabet(HashMap<String, String> map) {
         map.put("A","B");
         map.put("B","C");
         map.put("C","D");

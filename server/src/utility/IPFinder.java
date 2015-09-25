@@ -12,12 +12,11 @@ import java.net.InetAddress;
 import java.net.URL;
 
 /**
- * Classe per rilevare l'indirizzo IP e ottenere informazioni quali continente, nazione e città
+ * Classe per rilevare l'indirizzo IP e ottenere informazioni quali continente e nazione
  */
 public class IPFinder {
-    InetAddress ipAddress;
-    CityResponse response;
-
+    private InetAddress ipAddress;
+    private CityResponse response;
 
     public IPFinder(){
         String path = System.getProperty("user.dir") + "/geoip-db/GeoLite2-City.mmdb";
@@ -32,12 +31,6 @@ public class IPFinder {
         } catch (GeoIp2Exception e) {
             System.out.println("GeoIp2Exception in IPFinder");
         }
-
-
-    }
-
-    public String getCity(){
-        return String.valueOf(response.getCity());
     }
 
     public String getCountry(){
