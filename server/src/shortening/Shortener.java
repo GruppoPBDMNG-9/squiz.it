@@ -21,6 +21,17 @@ public class Shortener {
         alphabet = new LowerAlphabet();
     }
 
+    public Shortener(String lastUrl){
+        alphabet = new LowerAlphabet();
+
+        this.char1 = Character.toString(lastUrl.charAt(0));
+        this.char2 = Character.toString(lastUrl.charAt(1));
+        this.num1 = (short) (Integer.parseInt(Character.toString(lastUrl.charAt(2))));
+        this.num2 = (short) (Integer.parseInt(Character.toString(lastUrl.charAt(3))));
+        this.char3 = Character.toString(lastUrl.charAt(4));
+        this.char4 = Character.toString(lastUrl.charAt(5));
+    }
+
     /**
      * Generate a random short link
      * @return shortUrl
