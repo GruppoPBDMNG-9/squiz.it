@@ -2,7 +2,7 @@
 FROM ubuntu:latest
 
 #ports
-EXPOSE 8080
+EXPOSE 4567
 
 #For add-apt-repository command
 RUN apt-get install -y software-properties-common
