@@ -2,7 +2,7 @@
 FROM ubuntu:latest
 
 #ports
-EXPOSE 4567
+EXPOSE 8080
 
 #For add-apt-repository command
 RUN apt-get install -y software-properties-common
@@ -39,5 +39,5 @@ RUN git clone https://github.com/GruppoPBDMNG-9/squiz.it
 RUN echo '#!/bin/bash' >> /start
 RUN echo 'cd /squiz.it/' >> /start
 RUN echo 'mvn package' >> /start
-RUN echo 'java -jar target/squiz.it-1.0-SNAPSHOT.jar' >> /start
+RUN echo 'java -jar target/squiz-1.0-SNAPSHOT.jar' >> /start
 RUN chmod 777 /start
