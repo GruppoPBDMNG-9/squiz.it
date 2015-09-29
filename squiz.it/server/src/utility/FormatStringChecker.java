@@ -33,7 +33,7 @@ public class FormatStringChecker {
         return true;
     }
 
-    private static String removeStartAndEndIfEmpty(String text){
+    public static String removeStartAndEndIfEmpty(String text){
 
         while(text.startsWith(" ")){
             text = text.substring(1);

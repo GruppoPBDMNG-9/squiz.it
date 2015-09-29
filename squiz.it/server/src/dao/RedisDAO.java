@@ -884,20 +884,6 @@ public class RedisDAO  {
                 i++;
             }
 
-/*
-            for (String url: listShortsURL){
-
-
-
-                String autoGen=redis.hget(url,recordAutoGen);
-
-                if (autoGen.equals("true")){
-                    result=url;
-                    break;
-                }
-
-            }
-            */
 
         } finally {
             jedisPool.returnResource(redis);
