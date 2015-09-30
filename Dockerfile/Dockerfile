@@ -38,6 +38,7 @@ RUN git clone https://github.com/GruppoPBDMNG-9/squiz.it
 #create the start server file and make it executable
 RUN echo '#!/bin/bash' >> /start
 RUN echo 'cd /squiz.it/' >> /start
+RUN echo 'cd /squiz.it/' >> /start
 RUN echo 'mvn package' >> /start
 RUN echo 'java -jar target/squiz-1.0-SNAPSHOT.jar' >> /start
 RUN chmod 777 /start
