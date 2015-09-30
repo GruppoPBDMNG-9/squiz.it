@@ -28,7 +28,7 @@ public class Server {
             JSONObject json = new JSONObject();
 
             String shortening;
-            if (lastShortening == null) {
+            if (lastShortening.equals("")) {
                 shortening = new Shortener().randomGenerate();
                 lastShortening = shortening;
             } else {
