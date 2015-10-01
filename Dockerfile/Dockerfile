@@ -42,3 +42,9 @@ RUN echo 'cd /squiz.it/squiz.it/' >> /start
 RUN echo 'mvn package' >> /start
 RUN echo 'java -jar ./target/squiz-1.0-SNAPSHOT.jar' >> /start
 RUN chmod 777 /start
+
+#create a test script and make it executable
+RUN echo '#!/bin/bash' >> /testit
+RUN echo 'cd /squiz.it/squiz.it/' >> /testit
+RUN echo 'mvn test' >> /testit
+RUN chmod 777 /testit
