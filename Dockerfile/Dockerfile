@@ -1,8 +1,6 @@
 # Pull base image.
 FROM ubuntu:latest
 
-FROM chrisdaish/firefox:latest
-
 #ports
 EXPOSE 8080
 EXPOSE 4567
