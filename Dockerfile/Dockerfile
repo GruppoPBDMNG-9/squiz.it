@@ -1,7 +1,7 @@
 # Pull base image.
 FROM ubuntu:latest
 
-docker pull sitespeedio/firefox
+FROM firefox:latest
 
 #ports
 EXPOSE 8080
