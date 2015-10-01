@@ -1,6 +1,8 @@
 # Pull base image.
 FROM ubuntu:latest
 
+docker pull sitespeedio/firefox
+
 #ports
 EXPOSE 8080
 EXPOSE 4567
@@ -45,6 +47,6 @@ RUN chmod 777 /start
 
 #create a test script and make it executable
 RUN echo '#!/bin/bash' >> /testit
-RUN echo 'cd /squiz.it/squiz.it/' >> /testit
+RUN echo 'cd /squiz.it/squiz.it/server/' >> /testit
 RUN echo 'mvn test' >> /testit
 RUN chmod 777 /testit
