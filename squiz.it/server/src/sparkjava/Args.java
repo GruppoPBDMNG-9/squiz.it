@@ -39,4 +39,7 @@ public class Args {
     static final String CONTINENT = "continent";
     static final String COUNTRIES_LIST = "countryList";
 
+    //Index Path
+    static final String INDEX_PATH = "http://localhost:63342/squiz/client/app/index.html";
+
 }
