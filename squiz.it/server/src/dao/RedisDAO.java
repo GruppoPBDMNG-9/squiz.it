@@ -800,11 +800,11 @@ public class RedisDAO  {
             saveUrl("http://www.di.uniba.it/~malerba/",short2,"fumarola","23/09/2015",false);
 
             //salvo dei click
-            addClick(short1,"EUROPA","Italia","24/09/2015");
-            addClick(short1,"EUROPA","Italia","24/09/2015");
-            addClick(short1,"EUROPA","Spagna","24/09/2015");
+            addClick(short1,"Europe","Italy","24/09/2015");
+            addClick(short1,"Europe","Italy","24/09/2015");
+            addClick(short1,"Europe","Italy","24/09/2015");
 
-            addClick(short2,"EUROPA","Italia","24/09/2015");
+            addClick(short2,"Europe","Italy","24/09/2015");
         }
     }
 
