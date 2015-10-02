@@ -1,4 +1,6 @@
 # squiz.it
+step 0: clone squiz.it-launcher on your disk: https://github.com/GruppoPBDMNG-9/squiz.it-launcher
+
 You can find the Dockerfile at the follow URL: https://github.com/GruppoPBDMNG-9/squiz.it/tree/master/Dockerfile
 
 #Installation guide
@@ -45,4 +47,4 @@ docker exec -it URLsquiz bash
 #lanciare l'esecuzione del server mediante il seguente comando
 ./start
  
-Now open your browser and set the URL to: http://localhost:4567 too see and use our application.
+Now come back to the launcher on your disk (step 0) and open squiz.it-launcher/app/index.html
