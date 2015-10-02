@@ -47,4 +47,8 @@ docker exec -it URLsquiz bash
 #lanciare l'esecuzione del server mediante il seguente comando
 ./start
  
-Now come back to the launcher on your disk (step 0) and open squiz.it-launcher/app/index.html
+Now come back to the launcher on your disk (step 0) and open squiz.it-launcher/app/index.html with your browser
+
+TEST CREDENTIALS:
+username: fumarola
+password: pbdmng
